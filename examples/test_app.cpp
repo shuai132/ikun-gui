@@ -13,6 +13,9 @@ static std::shared_ptr<App> create_app() {
     node->attrs.height.percent(50);
     node->attrs.width.percent(100);
     node->attrs.color = 0xffff0000;  // red
+    node->on_click = [] {
+      printf("on_event: +\n");
+    };
     node->init_attrs();
     root->add_child(std::move(node));
   }
@@ -21,6 +24,9 @@ static std::shared_ptr<App> create_app() {
     node->attrs.height.percent(50);
     node->attrs.width.percent(100);
     node->attrs.color = 0xff00ff00;  // greed
+    node->on_click = [] {
+      printf("on_event: -\n");
+    };
     node->init_attrs();
     root->add_child(std::move(node));
   }

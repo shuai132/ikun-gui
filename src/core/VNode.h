@@ -56,37 +56,16 @@ class VNode : public std::enable_shared_from_this<VNode> {
   void init_attrs();
 
  public:
-  void measure(uint32_t width, uint32_t height) {}
+  void layout();
 
-  void layout(int32_t l, int32_t t, int32_t r, int32_t b) {
-    YGNodeCalculateLayout(yoga_node, YGUndefined, YGUndefined, YGDirectionLTR);
-  }
+  void draw(SkCanvas* canvas, int64_t delta_ms);
 
-  void draw(SkCanvas* canvas, int64_t delta_ms) {  // NOLINT(*-no-recursion)
-    auto count = canvas->getSaveCount();
-    draw_self(canvas);
-    for (const auto& item : children) {
-      item->draw(canvas, delta_ms);
-    }
-    canvas->restoreToCount(count);
-  }
+  void invalidate();
+
+  bool dispatch_touch_event(const MotionEvent& event);
 
  private:
-  void draw_self(SkCanvas* canvas) {
-    float left = YGNodeLayoutGetLeft(yoga_node);
-    float top = YGNodeLayoutGetTop(yoga_node);
-    float width = YGNodeLayoutGetWidth(yoga_node);
-    float height = YGNodeLayoutGetHeight(yoga_node);
-    printf("draw_self: %f %f %f %f\n", left, top, width, height);
-
-    SkPaint paint;
-    paint.setColor(attrs.color);
-
-    SkRect rect = SkRect::MakeXYWH(left, top, width, height);
-    canvas->drawRect(rect, paint);
-
-    printf("draw_self end\n");
-  }
+  void draw_self(SkCanvas* canvas);
 
  public:
   virtual ~VNode() {
@@ -95,12 +74,17 @@ class VNode : public std::enable_shared_from_this<VNode> {
 
  public:
   Attrs attrs;
+  std::function<void(const MotionEvent&)> on_event;
+  std::function<void()> on_click;
 
  protected:
   std::weak_ptr<VNode> parent;
   std::vector<std::shared_ptr<VNode>> children;
 
   YGNodeRef yoga_node = YGNodeNew();
+
+ private:
+  bool invalidated = true;
 };
 
 using div = VNode;

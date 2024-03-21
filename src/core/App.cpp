@@ -16,21 +16,23 @@ void App::resize(int width, int height) {
 }
 
 void App::process_layout() {
-  vdom->layout(0, 0, 0, 0);
+  vdom->layout();
 }
 
 void App::render(VNode *node) {
   vdom->draw(canvas, 0);
 }
 
-void App::push_event(MotionEvent event) {
+void App::send_event(MotionEvent event) {
   events.push_back(std::move(event));
   process_events();
 }
 
 void App::process_events() {
-  for (const auto &item : events) {
+  for (const auto &e : events) {
+    vdom->dispatch_touch_event(e);
   }
+  events.clear();
 }
 
 void App::init_canvas(SkCanvas *c) {

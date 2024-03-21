@@ -13,7 +13,7 @@ class App {
   void process_layout();
   void render(VNode* node = nullptr);
 
-  void push_event(MotionEvent event);
+  void send_event(MotionEvent event);
   void process_events();
 
   void init_canvas(SkCanvas* c);

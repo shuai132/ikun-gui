@@ -24,6 +24,8 @@ class IkunApp : public ikun_gui_app::Application, ikun_gui_app::Window::Layer {
   void onPaint(SkSurface*) override;
   void onResize(int width, int height) override;
   bool onChar(SkUnichar c, skui::ModifierKey modifiers) override;
+  bool onTouch(intptr_t owner, skui::InputState, float x, float y) override;
+  bool onMouse(int x, int y, skui::InputState, skui::ModifierKey) override;
 
  private:
   void updateTitle();

@@ -119,6 +119,48 @@ bool IkunApp::onChar(SkUnichar c, skui::ModifierKey modifiers) {
   return true;
 }
 
+bool IkunApp::onTouch(intptr_t owner, skui::InputState state, float x, float y) {
+  MotionEvent event;
+  switch (state) {
+    case skui::InputState::kDown:
+      event.action = Action::DOWN;
+      break;
+    case skui::InputState::kUp:
+      event.action = Action::UP;
+      break;
+    case skui::InputState::kMove:
+    case skui::InputState::kRight:
+    case skui::InputState::kLeft:
+      event.action = Action::UNKNOWN;
+      break;
+  }
+  event.x = x;
+  event.y = y;
+  app->send_event(event);
+  return true;
+}
+
+bool IkunApp::onMouse(int x, int y, skui::InputState state, skui::ModifierKey) {
+  MotionEvent event;
+  switch (state) {
+    case skui::InputState::kDown:
+      event.action = Action::DOWN;
+      break;
+    case skui::InputState::kUp:
+      event.action = Action::UP;
+      break;
+    case skui::InputState::kMove:
+    case skui::InputState::kRight:
+    case skui::InputState::kLeft:
+      event.action = Action::UNKNOWN;
+      break;
+  }
+  event.x = x;
+  event.y = y;
+  app->send_event(event);
+  return true;
+}
+
 }  // namespace ikun_gui
 
 namespace ikun_gui {
