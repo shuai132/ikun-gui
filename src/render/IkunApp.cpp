@@ -1,23 +1,8 @@
-/*
- * Copyright 2017 Google Inc.
- *
- * Use of this source code is governed by a BSD-style license that can be
- * found in the LICENSE file.
- */
+#include "IkunApp.h"
 
-#include "example/HelloWorld.h"
-
-#include <string.h>
-
-#include "include/core/SkCanvas.h"
-#include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
-#include "include/core/SkFontTypes.h"
 #include "include/core/SkGraphics.h"
-#include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
-#include "include/core/SkRect.h"
-#include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
@@ -25,14 +10,12 @@
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/window/DisplayParams.h"
 
-using namespace sk_app;
+using namespace ikun_gui_app;
 using skwindow::DisplayParams;
 
-Application* Application::Create(int argc, char** argv, void* platformData) {
-  return new HelloWorld(argc, argv, platformData);
-}
+namespace ikun_gui {
 
-HelloWorld::HelloWorld(int argc, char** argv, void* platformData)
+IkunApp::IkunApp(int argc, char** argv, std::shared_ptr<App> app, void* platformData)
 #if defined(SK_GL)
     : fBackendType(Window::kNativeGL_BackendType),
 #elif defined(SK_VULKAN)
@@ -45,6 +28,12 @@ HelloWorld::HelloWorld(int argc, char** argv, void* platformData)
 
   fWindow = Window::CreateNativeWindow(platformData);
   fWindow->setRequestedDisplayParams(DisplayParams());
+  fWindow->setSize(app->width, app->height);
+  {
+    auto scale = fWindow->getScaleFactor();
+    app->resize(app->width * scale, app->height * scale);
+    app->process_layout();
+  }
 
   // register callbacks
   fWindow->pushLayer(this);
@@ -55,14 +44,16 @@ HelloWorld::HelloWorld(int argc, char** argv, void* platformData)
   if (!fTypeface) {
     fTypeface = ToolUtils::DefaultPortableTypeface();
   }
+
+  this->app = std::move(app);
 }
 
-HelloWorld::~HelloWorld() {
+IkunApp::~IkunApp() {
   fWindow->detach();
   delete fWindow;
 }
 
-void HelloWorld::updateTitle() {
+void IkunApp::updateTitle() {
   if (!fWindow) {
     return;
   }
@@ -85,66 +76,30 @@ void HelloWorld::updateTitle() {
   fWindow->setTitle(title.c_str());
 }
 
-void HelloWorld::onBackendCreated() {
+void IkunApp::onBackendCreated() {
   this->updateTitle();
   fWindow->show();
   fWindow->inval();
 }
 
-void HelloWorld::onPaint(SkSurface* surface) {
+void IkunApp::onPaint(SkSurface* surface) {
   auto canvas = surface->getCanvas();
-
-  // Clear background
-  canvas->clear(SK_ColorWHITE);
-
-  SkPaint paint;
-  paint.setColor(SK_ColorRED);
-
-  // Draw a rectangle with red paint
-  SkRect rect = SkRect::MakeXYWH(10, 10, 128, 128);
-  canvas->drawRect(rect, paint);
-
-  // Set up a linear gradient and draw a circle
-  {
-    SkPoint linearPoints[] = {{0, 0}, {300, 300}};
-    SkColor linearColors[] = {SK_ColorGREEN, SK_ColorBLACK};
-    paint.setShader(SkGradientShader::MakeLinear(linearPoints, linearColors, nullptr, 2, SkTileMode::kMirror));
-    paint.setAntiAlias(true);
-
-    canvas->drawCircle(200, 200, 64, paint);
-
-    // Detach shader
-    paint.setShader(nullptr);
-  }
-
-  // Draw a message with a nice black paint
-  SkFont font(fTypeface, 20);
-  font.setSubpixel(true);
-  paint.setColor(SK_ColorBLACK);
-
-  canvas->save();
-  static const char message[] = "Hello World ";
-
-  // Translate and rotate
-  canvas->translate(300, 300);
-  fRotationAngle += 0.2f;
-  if (fRotationAngle > 360) {
-    fRotationAngle -= 360;
-  }
-  canvas->rotate(fRotationAngle);
-
-  // Draw the text
-  canvas->drawSimpleText(message, strlen(message), SkTextEncoding::kUTF8, 0, 0, font, paint);
-
-  canvas->restore();
+  app->init_canvas(canvas);
+  app->render();
 }
 
-void HelloWorld::onIdle() {
+void IkunApp::onResize(int width, int height) {
+  printf("onResize: %d, %d\n", width, height);
+  app->resize(width, height);
+  app->process_layout();
+}
+
+void IkunApp::onIdle() {
   // Just re-paint continuously
   fWindow->inval();
 }
 
-bool HelloWorld::onChar(SkUnichar c, skui::ModifierKey modifiers) {
+bool IkunApp::onChar(SkUnichar c, skui::ModifierKey modifiers) {
   if (' ' == c) {
     if (Window::kRaster_BackendType == fBackendType) {
 #if defined(SK_GL)
@@ -163,3 +118,15 @@ bool HelloWorld::onChar(SkUnichar c, skui::ModifierKey modifiers) {
   }
   return true;
 }
+
+}  // namespace ikun_gui
+
+namespace ikun_gui {
+
+int run(int argc, char** argv, std::shared_ptr<App> app) {
+  return ikun_gui_app::run([&](void* platform_data) {
+    return new ikun_gui::IkunApp(argc, argv, app, platform_data);
+  });
+}
+
+}  // namespace ikun_gui

@@ -1,3 +1,6 @@
 [submodule "thirdparty/skia"]
 	path = thirdparty/skia
 	url = git@github.com:google/skia.git
+[submodule "thirdparty/yoga"]
+	path = thirdparty/yoga
+	url = git@github.com:facebook/yoga.git

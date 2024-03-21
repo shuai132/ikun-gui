@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.15)
 
 project(ikun-gui CXX C)
 
+include(cmake/common.cmake)
+
 # examples
 option(IKUN_GUI_BUILD_EXAMPLES "" OFF)
 
@@ -21,13 +23,9 @@ add_compile_options(-Wall)
 add_subdirectory(src)
 
 if (IKUN_GUI_BUILD_EXAMPLES)
-    add_executable(skia_HelloWorld examples/HelloWorld.cpp)
-    target_link_libraries(skia_HelloWorld PRIVATE ikun_gui)
-    get_target_property(ikun_gui_compile_defs ikun_gui COMPILE_DEFINITIONS)
-    target_compile_definitions(skia_HelloWorld PUBLIC ${ikun_gui})
-
     add_executable(counter examples/counter.cpp)
-    target_link_libraries(counter PRIVATE ikun_gui)
-    get_target_property(ikun_gui_compile_defs ikun_gui COMPILE_DEFINITIONS)
-    target_compile_definitions(counter PUBLIC ${ikun_gui})
+    target_link_libraries_with_definitions(counter ikun_gui)
+
+    add_executable(test_app examples/test_app.cpp)
+    target_link_libraries_with_definitions(test_app ikun_gui)
 endif ()
