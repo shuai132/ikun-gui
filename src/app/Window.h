@@ -51,6 +51,8 @@ class Window {
   virtual void setTitle(const char*) = 0;
   virtual void show() = 0;
 
+  virtual void sendUserEvent(Application::Event event, long value) = 0;
+
   // JSON-formatted UI state for Android. Do nothing by default
   virtual void setUIState(const char*) {}
 

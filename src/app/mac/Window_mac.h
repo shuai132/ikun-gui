@@ -29,6 +29,8 @@ class Window_mac : public Window {
   void setTitle(const char*) override;
   void show() override;
 
+  void sendUserEvent(Application::Event event, long value) override;
+
   bool attach(BackendType) override;
 
   void onInval() override {}

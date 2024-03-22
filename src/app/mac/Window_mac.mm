@@ -122,6 +122,19 @@ void Window_mac::show() {
   [fWindow makeKeyAndOrderFront:NSApp];
 }
 
+void Window_mac::sendUserEvent(Application::Event e, long value) {
+  NSEvent* event = [NSEvent otherEventWithType:NSEventTypeApplicationDefined
+                                      location:NSMakePoint(0, 0)
+                                 modifierFlags:0
+                                     timestamp:0
+                                  windowNumber:0
+                                       context:nil
+                                       subtype:0
+                                         data1:(long)e
+                                         data2:value];
+  [NSApp postEvent:event atStart:YES];
+}
+
 bool Window_mac::attach(BackendType attachType) {
   this->initWindow();
 

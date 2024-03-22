@@ -30,6 +30,10 @@ IkunApp::IkunApp(int argc, char** argv, std::shared_ptr<App> app, void* platform
   fWindow->setRequestedDisplayParams(DisplayParams());
   fWindow->setSize(app->width, app->height);
   {
+    app->request_render_impl = [this](long id) {
+      fWindow->inval();
+      fWindow->sendUserEvent(Event::RequestRender, id);
+    };
     auto scale = fWindow->getScaleFactor();
     app->resize(app->width * scale, app->height * scale);
     app->process_layout();
@@ -94,9 +98,8 @@ void IkunApp::onResize(int width, int height) {
   app->process_layout();
 }
 
-void IkunApp::onIdle() {
-  // Just re-paint continuously
-  fWindow->inval();
+void IkunApp::onEvent(Event event, long value) {
+  app->on_event(event, value);
 }
 
 bool IkunApp::onChar(SkUnichar c, skui::ModifierKey modifiers) {

@@ -18,7 +18,7 @@ class IkunApp : public ikun_gui_app::Application, ikun_gui_app::Window::Layer {
   IkunApp(int argc, char** argv, std::shared_ptr<App> app, void* platformData = nullptr);
   ~IkunApp() override;
 
-  void onIdle() override;
+  void onEvent(Event event, long value) override;
 
   void onBackendCreated() override;
   void onPaint(SkSurface*) override;

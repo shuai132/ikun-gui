@@ -1,24 +1,18 @@
-/*
- * Copyright 2016 Google Inc.
- *
- * Use of this source code is governed by a BSD-style license that can be
- * found in the LICENSE file.
- */
-
-#ifndef Application_DEFINED
-#define Application_DEFINED
+#pragma once
 
 namespace ikun_gui_app {
 
 class Application {
  public:
-  static Application* Create(int argc, char** argv, void* platformData);
+  enum class Event {
+    RequestRender,
+    UserEvent,
+  };
 
-  virtual ~Application() {}
+ public:
+  virtual ~Application() = default;
 
-  virtual void onIdle() = 0;
+  virtual void onEvent(Event event, long value) = 0;
 };
 
 }  // namespace ikun_gui_app
-
-#endif

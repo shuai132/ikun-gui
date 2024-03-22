@@ -81,21 +81,16 @@ int ikun_gui_app::run(const create_app_proxy& proxy) {
 
   // Now we process the events
   while (![appDelegate done]) {
-    NSEvent* event;
-    do {
-      event = [NSApp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES];
-      [NSApp sendEvent:event];
-    } while (event != nil);
+    NSEvent* event = [NSApp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantFuture] inMode:NSDefaultRunLoopMode dequeue:YES];
+    [NSApp sendEvent:event];
 
-    [pool drain];
-    pool = [[NSAutoreleasePool alloc] init];
-
-    // Rather than depending on a Mac event to drive this, we treat our window
-    // invalidation flag as a separate event stream. Window::onPaint() will clear
-    // the invalidation flag, effectively removing it from the stream.
-    Window_mac::PaintWindows();
-
-    app->onIdle();
+    if (event.type == NSEventTypeApplicationDefined) {
+      auto e = (Application::Event)event.data1;
+      if (Application::Event::RequestRender == e) {
+        Window_mac::PaintWindows();
+      }
+      app->onEvent(e, event.data2);
+    }
   }
 
   delete app;

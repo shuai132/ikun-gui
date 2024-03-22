@@ -8,9 +8,9 @@ std::shared_ptr<App> App::create() {
   return app;
 }
 
-void App::resize(int width, int height) {
-  this->width = width;
-  this->height = height;
+void App::resize(int w, int h) {
+  this->width = w;
+  this->height = h;
   vdom->attrs.width.px(width);
   vdom->attrs.height.px(height);
   vdom->init_attrs();
@@ -50,6 +50,35 @@ void App::process_events() {
 
 void App::init_canvas(SkCanvas *c) {
   canvas = c;
+}
+
+std::shared_ptr<VNode> &App::root() {
+  return vdom;
+}
+
+VNode *App::get_vdom() {
+  return vdom.get();
+}
+
+VNode *App::get_waiting_event_node() {
+  return waiting_event_node;
+}
+
+void App::set_waiting_event_node(VNode *node) {
+  waiting_event_node = node;
+}
+
+void App::request_render() {
+  if (request_render_waiting) return;
+  request_render_waiting = true;
+  request_render_impl(request_render_id++);
+}
+
+void App::on_event(ikun_gui_app::Application::Event event, long value) {
+  fmt::println("on_event: {}, {}", fmt::underlying(event), value);
+  if (event == ikun_gui_app::Application::Event::RequestRender) {
+    request_render_waiting = false;
+  }
 }
 
 }  // namespace ikun_gui
