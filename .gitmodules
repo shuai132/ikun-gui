@@ -4,3 +4,6 @@
 [submodule "thirdparty/yoga"]
 	path = thirdparty/yoga
 	url = git@github.com:facebook/yoga.git
+[submodule "thirdparty/fmt"]
+	path = thirdparty/fmt
+	url = git@github.com:fmtlib/fmt.git

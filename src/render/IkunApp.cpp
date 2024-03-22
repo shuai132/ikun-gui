@@ -120,27 +120,16 @@ bool IkunApp::onChar(SkUnichar c, skui::ModifierKey modifiers) {
 }
 
 bool IkunApp::onTouch(intptr_t owner, skui::InputState state, float x, float y) {
-  MotionEvent event;
-  switch (state) {
-    case skui::InputState::kDown:
-      event.action = Action::DOWN;
-      break;
-    case skui::InputState::kUp:
-      event.action = Action::UP;
-      break;
-    case skui::InputState::kMove:
-    case skui::InputState::kRight:
-    case skui::InputState::kLeft:
-      event.action = Action::UNKNOWN;
-      break;
-  }
-  event.x = x;
-  event.y = y;
-  app->send_event(event);
-  return true;
+  static skui::ModifierKey key;
+  return onTouchOrMouse(owner, state, (float)x, (float)y, key);
 }
 
-bool IkunApp::onMouse(int x, int y, skui::InputState state, skui::ModifierKey) {
+bool IkunApp::onMouse(int x, int y, skui::InputState state, skui::ModifierKey key) {
+  return onTouchOrMouse(0, state, (float)x, (float)y, key);
+}
+
+bool IkunApp::onTouchOrMouse(intptr_t owner, skui::InputState state, float x, float y, skui::ModifierKey) {
+  // fmt::println("onTouch: {} {} {}", fmt::underlying(state), x, y);
   MotionEvent event;
   switch (state) {
     case skui::InputState::kDown:
@@ -150,6 +139,8 @@ bool IkunApp::onMouse(int x, int y, skui::InputState state, skui::ModifierKey) {
       event.action = Action::UP;
       break;
     case skui::InputState::kMove:
+      event.action = Action::MOVE;
+      break;
     case skui::InputState::kRight:
     case skui::InputState::kLeft:
       event.action = Action::UNKNOWN;

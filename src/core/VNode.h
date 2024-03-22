@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "IRuntime.h"
 #include "MotionEvent.h"
 #include "include/core/SkCanvas.h"
 #include "yoga/Yoga.h"
@@ -24,11 +25,13 @@ struct AttrValue {
   void auto_() {
     type = Type::auto_;
   }
+
   enum class Type {
     auto_,
     percent,
     px,
   } type{};
+
   union Value {
     float px;
     float percent;
@@ -50,13 +53,16 @@ struct Attrs {
 class VNode : public std::enable_shared_from_this<VNode> {
  public:
   static std::shared_ptr<VNode> create();
-
-  void add_child(std::shared_ptr<VNode> child);
-
-  void init_attrs();
+  VNode() = default;
+  virtual ~VNode();
 
  public:
-  void layout();
+  void add_child(std::shared_ptr<VNode> child);
+
+  void init_attrs() const;
+
+ public:
+  void layout() const;
 
   void draw(SkCanvas* canvas, int64_t delta_ms);
 
@@ -64,20 +70,31 @@ class VNode : public std::enable_shared_from_this<VNode> {
 
   bool dispatch_touch_event(const MotionEvent& event);
 
- private:
-  void draw_self(SkCanvas* canvas);
+  bool on_touch_event(const MotionEvent& event);
 
- public:
-  virtual ~VNode() {
-    YGNodeFree(yoga_node);
-  }
+ private:
+  void draw_self(SkCanvas* canvas) const;
 
  public:
   Attrs attrs;
-  std::function<void(const MotionEvent&)> on_event;
+
+ public:
+  // common event
+  std::function<void(const MotionEvent&)> touchstart;
+  std::function<void(const MotionEvent&)> touchmove;
+  std::function<void(const MotionEvent&)> touchend;
+  std::function<void(const MotionEvent&)> touchcancel;
+  // control
+  bool enable_touch = true;
+  // click event
   std::function<void()> on_click;
 
- protected:
+ public:
+  VNode* root() const;
+  bool is_root() const;
+
+ public:
+  IRuntime* runtime = nullptr;
   std::weak_ptr<VNode> parent;
   std::vector<std::shared_ptr<VNode>> children;
 
@@ -85,6 +102,7 @@ class VNode : public std::enable_shared_from_this<VNode> {
 
  private:
   bool invalidated = true;
+  bool is_touching = false;
 };
 
 using div = VNode;

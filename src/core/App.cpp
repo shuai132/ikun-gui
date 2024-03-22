@@ -3,8 +3,9 @@
 namespace ikun_gui {
 
 std::shared_ptr<App> App::create() {
-  auto self = std::make_shared<App>();
-  return self;
+  auto app = std::make_shared<App>();
+  app->vdom->runtime = app.get();
+  return app;
 }
 
 void App::resize(int width, int height) {
@@ -23,6 +24,10 @@ void App::render(VNode *node) {
   vdom->draw(canvas, 0);
 }
 
+void App::push_event(MotionEvent event) {
+  events.push_back(std::move(event));
+}
+
 void App::send_event(MotionEvent event) {
   events.push_back(std::move(event));
   process_events();
@@ -30,7 +35,15 @@ void App::send_event(MotionEvent event) {
 
 void App::process_events() {
   for (const auto &e : events) {
-    vdom->dispatch_touch_event(e);
+    if (e.action != DOWN && waiting_event_node == nullptr) {
+      // ignore event
+      break;
+    }
+    if (waiting_event_node) {
+      waiting_event_node->on_touch_event(e);
+    } else {
+      vdom->dispatch_touch_event(e);
+    }
   }
   events.clear();
 }

@@ -13,8 +13,20 @@ static std::shared_ptr<App> create_app() {
     node->attrs.height.percent(50);
     node->attrs.width.percent(100);
     node->attrs.color = 0xffff0000;  // red
+    node->touchstart = [](const MotionEvent& event) {
+      fmt::println("touchstart: {}", event);
+    };
+    node->touchmove = [](const MotionEvent& event) {
+      fmt::println("touchmove: {}", event);
+    };
+    node->touchend = [](const MotionEvent& event) {
+      fmt::println("touchend: {}", event);
+    };
+    node->touchcancel = [](const MotionEvent& event) {
+      fmt::println("touchcancel: {}", event);
+    };
     node->on_click = [] {
-      printf("on_event: +\n");
+      fmt::println("on_click: +");
     };
     node->init_attrs();
     root->add_child(std::move(node));
@@ -23,9 +35,9 @@ static std::shared_ptr<App> create_app() {
     auto node = VNode::create();
     node->attrs.height.percent(50);
     node->attrs.width.percent(100);
-    node->attrs.color = 0xff00ff00;  // greed
+    node->attrs.color = 0xff00ff00;  // green
     node->on_click = [] {
-      printf("on_event: -\n");
+      fmt::println("on_click: -");
     };
     node->init_attrs();
     root->add_child(std::move(node));
@@ -33,6 +45,6 @@ static std::shared_ptr<App> create_app() {
   return app;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   return ikun_gui::run(argc, argv, create_app());
 }

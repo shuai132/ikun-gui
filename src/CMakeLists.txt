@@ -33,6 +33,9 @@ target_link_libraries(ikun_gui PUBLIC ikun_gui_app)
 add_subdirectory(../thirdparty/yoga/yoga yoga)
 target_link_libraries(ikun_gui PUBLIC yogacore)
 
+add_subdirectory(../thirdparty/fmt fmt)
+target_link_libraries(ikun_gui PUBLIC fmt)
+
 target_include_directories(ikun_gui PUBLIC
         .
         ${SKIA_PATH}

@@ -29,6 +29,7 @@ class IkunApp : public ikun_gui_app::Application, ikun_gui_app::Window::Layer {
 
  private:
   void updateTitle();
+  bool onTouchOrMouse(intptr_t owner, skui::InputState state, float x, float y, skui::ModifierKey);
 
   ikun_gui_app::Window* fWindow;
   ikun_gui_app::Window::BackendType fBackendType;
