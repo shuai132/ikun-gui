@@ -25,7 +25,4 @@ add_subdirectory(src)
 if (IKUN_GUI_BUILD_EXAMPLES)
     add_executable(counter examples/counter.cpp)
     target_link_libraries_with_definitions(counter ikun_gui)
-
-    add_executable(test_app examples/test_app.cpp)
-    target_link_libraries_with_definitions(test_app ikun_gui)
 endif ()

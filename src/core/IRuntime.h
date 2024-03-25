@@ -3,6 +3,7 @@
 namespace ikun_gui {
 
 class VNode;
+class App;
 
 class IRuntime {
  public:
@@ -11,6 +12,7 @@ class IRuntime {
   virtual VNode* get_waiting_event_node() = 0;
   virtual void set_waiting_event_node(VNode* node) = 0;
   virtual void request_render() = 0;
+  virtual App* app() = 0;
 };
 
 }  // namespace ikun_gui

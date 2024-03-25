@@ -33,9 +33,7 @@ class IkunApp : public ikun_gui_app::Application, ikun_gui_app::Window::Layer {
 
   ikun_gui_app::Window* fWindow;
   ikun_gui_app::Window::BackendType fBackendType;
-  sk_sp<SkTypeface> fTypeface;
 
-  SkScalar fRotationAngle;
   std::shared_ptr<ikun_gui::App> app;
 };
 

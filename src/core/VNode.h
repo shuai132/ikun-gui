@@ -38,14 +38,72 @@ struct AttrValue {
   } value{};
 };
 
+enum class AlignType {
+  content,
+  items,
+  self,
+};
+
+struct Align {
+  void content(YGAlign align) {
+    type = AlignType::content;
+    style = align;
+  }
+  void items(YGAlign align) {
+    type = AlignType::items;
+    style = align;
+  }
+
+  void self(YGAlign align) {
+    type = AlignType::self;
+    style = align;
+  }
+
+  AlignType type;
+  YGAlign style;
+};
+
+struct Color {
+  void argb(uint8_t a, uint8_t r, uint8_t g, uint8_t b) {
+    is_set = true;
+    value_ = SkColorSetARGB(a, r, g, b);
+  }
+  void rgb(uint8_t r, uint8_t g, uint8_t b) {
+    is_set = true;
+    value_ = SkColorSetRGB(r, g, b);
+  }
+  void black() {
+    is_set = true;
+    value_ = SK_ColorBLACK;
+  }
+  void white() {
+    is_set = true;
+    value_ = SK_ColorWHITE;
+  }
+  void gray() {
+    is_set = true;
+    value_ = SK_ColorGRAY;
+  }
+  void value(uint32_t v) {
+    is_set = true;
+    value_ = v;
+  }
+  uint32_t value() const {
+    return value_;
+  }
+  bool is_set = false;
+
+ private:
+  uint32_t value_;
+};
+
 struct Attrs {
   std::string tag;
   AttrValue width;
   AttrValue height;
   std::string background;
-  std::string main_align;
-  std::string cross_align;
-  uint32_t color = 0;
+  Align align;
+  Color color;
   std::string shadow;
   std::string direction;
 };
@@ -59,21 +117,22 @@ class VNode : public std::enable_shared_from_this<VNode> {
  public:
   void add_child(std::shared_ptr<VNode> child);
 
-  void init_attrs() const;
+  virtual void init_attrs();
 
  public:
   void layout() const;
 
-  void draw(SkCanvas* canvas, int64_t delta_ms);
+  void set_runtime(IRuntime* runtime);
+
+  virtual void draw(SkCanvas* canvas, int64_t delta_ms);
+
+  virtual void draw_self(SkCanvas* canvas, int64_t delta_ms);
 
   void invalidate();
 
   bool dispatch_touch_event(const MotionEvent& event);
 
   bool on_touch_event(const MotionEvent& event);
-
- private:
-  void draw_self(SkCanvas* canvas) const;
 
  public:
   Attrs attrs;

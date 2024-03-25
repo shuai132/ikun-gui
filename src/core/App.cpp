@@ -4,7 +4,7 @@ namespace ikun_gui {
 
 std::shared_ptr<App> App::create() {
   auto app = std::make_shared<App>();
-  app->vdom->runtime = app.get();
+  app->vdom->set_runtime(app.get());
   return app;
 }
 
@@ -72,6 +72,10 @@ void App::request_render() {
   if (request_render_waiting) return;
   request_render_waiting = true;
   request_render_impl(request_render_id++);
+}
+
+App *App::app() {
+  return this;
 }
 
 void App::on_event(ikun_gui_app::Application::Event event, long value) {

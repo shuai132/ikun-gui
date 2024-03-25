@@ -7,7 +7,6 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkGradientShader.h"
-#include "tools/fonts/FontToolUtils.h"
 #include "tools/window/DisplayParams.h"
 
 using namespace ikun_gui_app;
@@ -17,13 +16,13 @@ namespace ikun_gui {
 
 IkunApp::IkunApp(int argc, char** argv, std::shared_ptr<App> app, void* platformData)
 #if defined(SK_GL)
-    : fBackendType(Window::kNativeGL_BackendType),
+    : fBackendType(Window::kNativeGL_BackendType)
 #elif defined(SK_VULKAN)
-    : fBackendType(Window::kVulkan_BackendType),
+    : fBackendType(Window::kVulkan_BackendType)
 #else
-    : fBackendType(Window::kRaster_BackendType),
+    : fBackendType(Window::kRaster_BackendType)
 #endif
-      fRotationAngle(0) {
+{
   SkGraphics::Init();
 
   fWindow = Window::CreateNativeWindow(platformData);
@@ -44,10 +43,7 @@ IkunApp::IkunApp(int argc, char** argv, std::shared_ptr<App> app, void* platform
 
   fWindow->attach(fBackendType);
 
-  fTypeface = ToolUtils::CreateTypefaceFromResource("fonts/Roboto-Regular.ttf");
-  if (!fTypeface) {
-    fTypeface = ToolUtils::DefaultPortableTypeface();
-  }
+  fWindow->setTitle(app->title.c_str());
 
   this->app = std::move(app);
 }
@@ -62,22 +58,19 @@ void IkunApp::updateTitle() {
     return;
   }
 
-  SkString title("Hello World ");
   if (Window::kRaster_BackendType == fBackendType) {
-    title.append("Raster");
+    fmt::println("backend: Raster");
   } else {
 #if defined(SK_GL)
-    title.append("GL");
+    fmt::println("backend: OpenGL");
 #elif defined(SK_VULKAN)
-    title.append("Vulkan");
+    fmt::println("backend: Vulkan");
 #elif defined(SK_DAWN)
-    title.append("Dawn");
+    fmt::println("backend: Dawn");
 #else
-    title.append("Unknown GPU backend");
+    fmt::println("Unknown GPU backend");
 #endif
   }
-
-  fWindow->setTitle(title.c_str());
 }
 
 void IkunApp::onBackendCreated() {

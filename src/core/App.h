@@ -1,5 +1,6 @@
 #pragma once
 
+#include "FontManager.h"
 #include "IRuntime.h"
 #include "VNode.h"
 #include "app/Application.h"
@@ -31,11 +32,16 @@ class App : public IRuntime {
 
   void request_render() override;
 
+  App* app() override;
+
   void on_event(ikun_gui_app::Application::Event event, long value);
 
  public:
   int width = 0;
   int height = 0;
+  std::string title;
+
+  FontManager font_manager;
 
   std::function<void(long id)> request_render_impl;
 

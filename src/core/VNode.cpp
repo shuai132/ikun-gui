@@ -15,11 +15,11 @@ void VNode::add_child(std::shared_ptr<VNode> child) {
   YGNodeInsertChild(yoga_node, child->yoga_node, index);
 
   child->parent = shared_from_this();
-  child->runtime = runtime;
+  child->set_runtime(runtime);
   children.push_back(std::move(child));
 }
 
-void VNode::init_attrs() const {
+void VNode::init_attrs() {
   // width
   switch (attrs.width.type) {
     case AttrValue::Type::px:
@@ -45,19 +45,53 @@ void VNode::init_attrs() const {
       YGNodeStyleSetWidthAuto(yoga_node);
       break;
   }
+
+  // align
+  switch (attrs.align.type) {
+    case AlignType::content:
+      YGNodeStyleSetAlignContent(yoga_node, attrs.align.style);
+      break;
+    case AlignType::items:
+      YGNodeStyleSetAlignItems(yoga_node, attrs.align.style);
+      break;
+    case AlignType::self:
+      YGNodeStyleSetAlignSelf(yoga_node, attrs.align.style);
+      break;
+  }
 }
 
 void VNode::layout() const {
   YGNodeCalculateLayout(yoga_node, YGUndefined, YGUndefined, YGDirectionLTR);
 }
 
+void VNode::set_runtime(IRuntime* rt) {  // NOLINT(*-no-recursion)
+  this->runtime = rt;
+  for (const auto& item : children) {
+    item->set_runtime(rt);
+  }
+}
+
 void VNode::draw(SkCanvas* canvas, int64_t delta_ms) {  // NOLINT(*-no-recursion)
   auto count = canvas->getSaveCount();
-  draw_self(canvas);
+  draw_self(canvas, delta_ms);
   for (const auto& item : children) {
     item->draw(canvas, delta_ms);
   }
   canvas->restoreToCount(count);
+}
+
+void VNode::draw_self(SkCanvas* canvas, int64_t delta_ms) {
+  if (!attrs.color.is_set) return;
+  float left = YGNodeLayoutGetLeft(yoga_node);
+  float top = YGNodeLayoutGetTop(yoga_node);
+  float width = YGNodeLayoutGetWidth(yoga_node);
+  float height = YGNodeLayoutGetHeight(yoga_node);
+
+  SkPaint paint;
+  paint.setColor(attrs.color.value());
+
+  SkRect rect = SkRect::MakeXYWH(left, top, width, height);
+  canvas->drawRect(rect, paint);
 }
 
 void VNode::invalidate() {  // NOLINT(*-no-recursion)
@@ -114,19 +148,6 @@ bool VNode::on_touch_event(const MotionEvent& event) {
     }
   }
   return false;
-}
-
-void VNode::draw_self(SkCanvas* canvas) const {
-  float left = YGNodeLayoutGetLeft(yoga_node);
-  float top = YGNodeLayoutGetTop(yoga_node);
-  float width = YGNodeLayoutGetWidth(yoga_node);
-  float height = YGNodeLayoutGetHeight(yoga_node);
-
-  SkPaint paint;
-  paint.setColor(attrs.color);
-
-  SkRect rect = SkRect::MakeXYWH(left, top, width, height);
-  canvas->drawRect(rect, paint);
 }
 
 VNode* VNode::root() const {
