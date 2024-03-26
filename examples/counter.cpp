@@ -8,41 +8,93 @@ static std::shared_ptr<App> create_app() {
   app->width = 400;
   app->height = 350;
   app->title = "counter";
+
+  std::shared_ptr<int> counter = std::make_shared<int>(0);
+
   auto root = app->root();
   {
-    auto node = VNode::create();
-    node->attrs.height.percent(50);
-    node->attrs.width.percent(100);
-    node->attrs.color.rgb(0, 119, 182);
-    node->attrs.align.self(YGAlign::YGAlignCenter);
-    node->init_attrs();
-    node->on_click = [] {
-      fmt::println("on_click: +");
-    };
+    auto top = VNode::create();
+    root->add_child(top);
+    top->attrs.height.percent(50);
+    top->attrs.width.percent(100);
+    top->attrs.color.rgb(0, 119, 182);
+    top->attrs.justify(YGJustifyCenter);
+    top->attrs.align.items(YGAlignCenter);
+    top->init_attrs();
     {
       auto label = Label::create();
-      label->attrs.align.self(YGAlign::YGAlignCenter);
-      label->font_size = 75;
-      label->color = SK_ColorWHITE;
-      label->text = "0";
+      top->add_child(label);
+      label->font_size = 100;
+      label->color.white();
+      label->text = std::to_string(*counter);
       label->init_attrs();
-      label->on_click = [] {
-        fmt::println("on_click: label");
-      };
-      node->add_child(label);
     }
-    root->add_child(std::move(node));
   }
+
   {
-    auto node = VNode::create();
-    node->attrs.height.percent(50);
-    node->attrs.width.percent(100);
-    node->attrs.color.white();
-    node->on_click = [] {
-      fmt::println("on_click: -");
-    };
-    node->init_attrs();
-    root->add_child(std::move(node));
+    auto bottom = VNode::create();
+    root->add_child(bottom);
+    bottom->attrs.height.percent(50);
+    bottom->attrs.width.percent(100);
+    bottom->attrs.color.white();
+    bottom->attrs.justify(YGJustifyCenter);
+    bottom->attrs.align.items(YGAlignCenter);
+    bottom->attrs.flex_direction(YGFlexDirectionRow);
+    bottom->init_attrs();
+
+    // button: +
+    {
+      auto button = Button::create();
+      bottom->add_child(button);
+      button->attrs.width.px(200);
+      button->attrs.height.px(60);
+      button->init_attrs();
+      button->on_click = [counter] {
+        fmt::println("on_click: +");
+        (*counter)++;
+      };
+      {
+        auto label = Label::create();
+        button->add_child(label);
+        label->font_size = 25;
+        label->color.black();
+        label->bold = true;
+        label->text = "Increase";
+        label->init_attrs();
+      }
+    }
+
+    // span
+    {
+      auto span = VNode::create();
+      bottom->add_child(span);
+      span->attrs.width.percent(15);
+      span->attrs.height.percent(0);
+      span->init_attrs();
+    }
+
+    // button: -
+    {
+      auto button = Button::create();
+      bottom->add_child(button);
+      button->attrs.width.px(200);
+      button->attrs.height.px(60);
+      button->init_attrs();
+      button->on_click = [counter] {
+        fmt::println("on_click: -");
+        (*counter)++;
+      };
+      {
+        auto label = Label::create();
+        button->add_child(label);
+        label->font_size = 25;
+        label->color.black();
+        label->bold = true;
+        label->text = "Decrease";
+        label->enable_touch = false;
+        label->init_attrs();
+      }
+    }
   }
   return app;
 }

@@ -27,10 +27,11 @@ struct AttrValue {
   }
 
   enum class Type {
+    unset,
     auto_,
     percent,
     px,
-  } type{};
+  } type = Type::unset;
 
   union Value {
     float px;
@@ -39,6 +40,7 @@ struct AttrValue {
 };
 
 enum class AlignType {
+  unset,
   content,
   items,
   self,
@@ -63,38 +65,55 @@ struct Align {
   YGAlign style;
 };
 
+struct Justify {
+  void operator()(YGJustify v) {
+    is_set = true;
+    justify = v;
+  }
+
+  bool is_set = false;
+  YGJustify justify;
+};
+
+struct FlexDirection {
+  void operator()(YGFlexDirection v) {
+    is_set = true;
+    direction = v;
+  }
+
+  bool is_set = false;
+  YGFlexDirection direction;
+};
+
 struct Color {
+  void operator()(SkColor v) {
+    is_set = true;
+    value = v;
+  }
+
   void argb(uint8_t a, uint8_t r, uint8_t g, uint8_t b) {
     is_set = true;
-    value_ = SkColorSetARGB(a, r, g, b);
+    value = SkColorSetARGB(a, r, g, b);
   }
   void rgb(uint8_t r, uint8_t g, uint8_t b) {
     is_set = true;
-    value_ = SkColorSetRGB(r, g, b);
+    value = SkColorSetRGB(r, g, b);
   }
   void black() {
     is_set = true;
-    value_ = SK_ColorBLACK;
+    value = SK_ColorBLACK;
   }
   void white() {
     is_set = true;
-    value_ = SK_ColorWHITE;
+    value = SK_ColorWHITE;
   }
   void gray() {
     is_set = true;
-    value_ = SK_ColorGRAY;
+    value = SK_ColorGRAY;
   }
-  void value(uint32_t v) {
-    is_set = true;
-    value_ = v;
-  }
-  uint32_t value() const {
-    return value_;
-  }
-  bool is_set = false;
 
- private:
-  uint32_t value_;
+  bool is_set = false;
+  uint32_t value = 0;
 };
 
 struct Attrs {
@@ -103,9 +122,10 @@ struct Attrs {
   AttrValue height;
   std::string background;
   Align align;
+  Justify justify;
+  FlexDirection flex_direction;
   Color color;
   std::string shadow;
-  std::string direction;
 };
 
 class VNode : public std::enable_shared_from_this<VNode> {
@@ -154,10 +174,15 @@ class VNode : public std::enable_shared_from_this<VNode> {
 
  public:
   IRuntime* runtime = nullptr;
-  std::weak_ptr<VNode> parent;
+  VNode* parent = nullptr;
   std::vector<std::shared_ptr<VNode>> children;
 
   YGNodeRef yoga_node = YGNodeNew();
+
+  float layout_left = 0;
+  float layout_top = 0;
+  float layout_width = 0;
+  float layout_height = 0;
 
  private:
   bool invalidated = true;

@@ -4,7 +4,7 @@
 
 namespace ikun_gui {
 
-class Label : public VNode, public std::enable_shared_from_this<Label> {
+class Label : public VNode {
  public:
   static std::shared_ptr<Label> create();
   Label() = default;
@@ -17,7 +17,8 @@ class Label : public VNode, public std::enable_shared_from_this<Label> {
  public:
   float font_size = 12.f;
   std::string font_weight = "bold";
-  uint32_t color = SK_ColorGRAY;
+  Color color;
+  bool bold = false;
   std::string text;
 };
 

@@ -11,8 +11,13 @@ std::shared_ptr<Label> Label::create() {
 }
 
 void Label::init_attrs() {
-  attrs.height.percent(100);
-  attrs.width.percent(100);
+  if (attrs.height.type == AttrValue::Type::unset) {
+    attrs.height.percent(100);
+  }
+  if (attrs.width.type == AttrValue::Type::unset) {
+    attrs.width.percent(100);
+  }
+  enable_touch = false;
   VNode::init_attrs();
 }
 
@@ -22,16 +27,27 @@ void Label::draw_self(SkCanvas *canvas, int64_t delta_ms) {
   SkFont font(runtime->app()->font_manager.typeface, font_size);
   font.setSubpixel(true);
   font.setSize(font_size);
-
-  // todo:
-  float left = YGNodeLayoutGetLeft(yoga_node);
-  float top = YGNodeLayoutGetTop(yoga_node);
-  float width = YGNodeLayoutGetWidth(yoga_node);
-  float height = YGNodeLayoutGetHeight(yoga_node);
   SkPaint paint;
-  paint.setColor(color);
-  canvas->drawSimpleText(text.c_str(), text.length(), SkTextEncoding::kUTF8, left + width / 2 - (font_size * text.length() / 2), top + height / 2,
-                         font, paint);
+  if (color.is_set) {
+    paint.setColor(color.value);
+  }
+  if (bold) {
+    font.setEmbolden(true);
+  }
+
+  SkRect bounds;
+  font.measureText(text.data(), text.length(), SkTextEncoding::kUTF8, &bounds, &paint);
+
+  // clang-format off
+  canvas->drawSimpleText(text.data(),
+                         text.length(),
+                         SkTextEncoding::kUTF8,
+                         layout_left + (layout_width - bounds.width())/ 2,
+                         layout_top + layout_height - (layout_height - bounds.height())/ 2,
+                         font,
+                         paint
+                         );
+  // clang-format on
 }
 
 }  // namespace ikun_gui
