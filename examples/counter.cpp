@@ -3,18 +3,15 @@
 using namespace ikun_gui_app;
 using namespace ikun_gui;
 
-static std::shared_ptr<App> create_app() {
-  auto app = App::create();
-  app->width = 400;
-  app->height = 350;
-  app->title = "counter";
+static std::shared_ptr<VNode> create_app() {
+  auto counter = hook::use_signal<int>([] {
+    return 0;
+  });
 
-  std::shared_ptr<int> counter = std::make_shared<int>(0);
-
-  auto root = app->root();
+  auto parent = hook::current_scope()->scope_root();
   {
     auto top = VNode::create();
-    root->add_child(top);
+    parent->add_child(top);
     top->attrs.height.percent(50);
     top->attrs.width.percent(100);
     top->attrs.color.rgb(0, 119, 182);
@@ -26,14 +23,35 @@ static std::shared_ptr<App> create_app() {
       top->add_child(label);
       label->font_size = 100;
       label->color.white();
-      label->text = std::to_string(*counter);
+      label->text = std::to_string(counter);
       label->init_attrs();
+    }
+  }
+
+  if (counter.get() > 0) {
+    auto group = VNode::create();
+    parent->add_child(group);
+    group->attrs.position(YGPositionTypeAbsolute);
+    group->attrs.width.percent(100);
+    group->attrs.height.px(50);
+    group->attrs.align.items(YGAlignCenter);
+    group->attrs.justify(YGJustifySpaceAround);
+    group->attrs.flex_direction(YGFlexDirectionRow);
+    group->init_attrs();
+
+    for (int i = 0; i < counter.get(); i++) {
+      auto node = VNode::create();
+      group->add_child(node);
+      node->attrs.height.px(50);
+      node->attrs.width.px(50);
+      node->attrs.color.white();
+      node->init_attrs();
     }
   }
 
   {
     auto bottom = VNode::create();
-    root->add_child(bottom);
+    parent->add_child(bottom);
     bottom->attrs.height.percent(50);
     bottom->attrs.width.percent(100);
     bottom->attrs.color.white();
@@ -49,9 +67,9 @@ static std::shared_ptr<App> create_app() {
       button->attrs.width.px(200);
       button->attrs.height.px(60);
       button->init_attrs();
-      button->on_click = [counter] {
+      button->on_click = [counter]() mutable {
         fmt::println("on_click: +");
-        (*counter)++;
+        counter++;
       };
       {
         auto label = Label::create();
@@ -68,7 +86,7 @@ static std::shared_ptr<App> create_app() {
     {
       auto span = VNode::create();
       bottom->add_child(span);
-      span->attrs.width.percent(15);
+      span->attrs.width.percent(10);
       span->attrs.height.percent(0);
       span->init_attrs();
     }
@@ -80,9 +98,9 @@ static std::shared_ptr<App> create_app() {
       button->attrs.width.px(200);
       button->attrs.height.px(60);
       button->init_attrs();
-      button->on_click = [counter] {
+      button->on_click = [counter]() mutable {
         fmt::println("on_click: -");
-        (*counter)++;
+        counter--;
       };
       {
         auto label = Label::create();
@@ -96,9 +114,14 @@ static std::shared_ptr<App> create_app() {
       }
     }
   }
-  return app;
+  return nullptr;
 }
 
 int main(int argc, char* argv[]) {
-  return ikun_gui::run(argc, argv, create_app());
+  auto app = App::create();
+  app->width = 400;
+  app->height = 350;
+  app->title = "counter";
+  app->root()->add_child(create_app);
+  return ikun_gui::run(argc, argv, app);
 }

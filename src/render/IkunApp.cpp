@@ -35,7 +35,6 @@ IkunApp::IkunApp(int argc, char** argv, std::shared_ptr<App> app, void* platform
     };
     auto scale = fWindow->getScaleFactor();
     app->resize(app->width * scale, app->height * scale);
-    app->process_layout();
   }
 
   // register callbacks
@@ -81,14 +80,13 @@ void IkunApp::onBackendCreated() {
 
 void IkunApp::onPaint(SkSurface* surface) {
   auto canvas = surface->getCanvas();
-  app->init_canvas(canvas);
+  app->set_canvas(canvas);
   app->render();
 }
 
 void IkunApp::onResize(int width, int height) {
   printf("onResize: %d, %d\n", width, height);
   app->resize(width, height);
-  app->process_layout();
 }
 
 void IkunApp::onEvent(Event event, long value) {

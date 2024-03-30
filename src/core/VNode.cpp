@@ -1,5 +1,7 @@
 #include "VNode.h"
 
+#include "App.h"
+
 namespace ikun_gui {
 
 std::shared_ptr<VNode> VNode::create() {
@@ -17,6 +19,15 @@ void VNode::add_child(std::shared_ptr<VNode> child) {
   child->parent = this;
   child->set_runtime(runtime);
   children.push_back(std::move(child));
+}
+
+void VNode::add_child(std::function<std::shared_ptr<VNode>()> builder) {
+  auto scope_ptr = std::make_shared<hook::Scope>(this);
+  auto scope = scope_ptr.get();
+  this->scopes.push_back(std::move(scope_ptr));
+  hook::set_current_scope(scope);
+  auto node = builder();
+  scope->child_builder = std::move(builder);
 }
 
 void VNode::init_attrs() {
@@ -65,14 +76,19 @@ void VNode::init_attrs() {
       break;
   }
 
+  // position
+  if (attrs.position.is_set) {
+    YGNodeStyleSetPositionType(yoga_node, attrs.position.value);
+  }
+
   // justify
   if (attrs.flex_direction.is_set) {
-    YGNodeStyleSetJustifyContent(yoga_node, attrs.justify.justify);
+    YGNodeStyleSetJustifyContent(yoga_node, attrs.justify.value);
   }
 
   // flex_direction
   if (attrs.flex_direction.is_set) {
-    YGNodeStyleSetFlexDirection(yoga_node, attrs.flex_direction.direction);
+    YGNodeStyleSetFlexDirection(yoga_node, attrs.flex_direction.value);
   }
 }
 

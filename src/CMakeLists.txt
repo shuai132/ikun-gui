@@ -1,8 +1,16 @@
 cmake_minimum_required(VERSION 3.15)
 
-file(GLOB SRCS */*.cpp)
+file(GLOB src_app app/*.cpp)
+file(GLOB_RECURSE src_core core/*.cpp)
+file(GLOB_RECURSE src_render render/*.cpp)
+file(GLOB_RECURSE src_components components/*.cpp)
 
-add_library(ikun_gui STATIC ${SRCS})
+add_library(ikun_gui STATIC
+        ${src_app}
+        ${src_core}
+        ${src_render}
+        ${src_components}
+)
 
 if (NOT SKIA_USE_STATIC_LIBS)
     if (NOT EXISTS ${SKIA_PATH}/out/config/CMakeLists.txt)

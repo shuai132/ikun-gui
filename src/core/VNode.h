@@ -4,6 +4,7 @@
 
 #include "IRuntime.h"
 #include "MotionEvent.h"
+#include "hook/Scope.h"
 #include "include/core/SkCanvas.h"
 #include "yoga/Yoga.h"
 
@@ -65,24 +66,34 @@ struct Align {
   YGAlign style;
 };
 
-struct Justify {
-  void operator()(YGJustify v) {
+struct Position {
+  void operator()(YGPositionType v) {
     is_set = true;
-    justify = v;
+    value = v;
   }
 
   bool is_set = false;
-  YGJustify justify;
+  YGPositionType value;
+};
+
+struct Justify {
+  void operator()(YGJustify v) {
+    is_set = true;
+    value = v;
+  }
+
+  bool is_set = false;
+  YGJustify value;
 };
 
 struct FlexDirection {
   void operator()(YGFlexDirection v) {
     is_set = true;
-    direction = v;
+    value = v;
   }
 
   bool is_set = false;
-  YGFlexDirection direction;
+  YGFlexDirection value;
 };
 
 struct Color {
@@ -122,6 +133,7 @@ struct Attrs {
   AttrValue height;
   std::string background;
   Align align;
+  Position position;
   Justify justify;
   FlexDirection flex_direction;
   Color color;
@@ -136,6 +148,8 @@ class VNode : public std::enable_shared_from_this<VNode> {
 
  public:
   void add_child(std::shared_ptr<VNode> child);
+
+  void add_child(std::function<std::shared_ptr<VNode>()> builder);
 
   virtual void init_attrs();
 
@@ -176,6 +190,7 @@ class VNode : public std::enable_shared_from_this<VNode> {
   IRuntime* runtime = nullptr;
   VNode* parent = nullptr;
   std::vector<std::shared_ptr<VNode>> children;
+  std::vector<std::shared_ptr<hook::Scope>> scopes;
 
   YGNodeRef yoga_node = YGNodeNew();
 

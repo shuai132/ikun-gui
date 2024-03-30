@@ -16,20 +16,21 @@ void App::resize(int w, int h) {
   vdom->init_attrs();
 }
 
-void App::process_layout() {
+void App::layout() {
   vdom->layout();
 }
 
-void App::render(VNode *node) {
+void App::render() {
+  this->layout();
   vdom->draw(canvas, 0);
 }
 
 void App::push_event(MotionEvent event) {
-  events.push_back(std::move(event));
+  events.push_back(std::move(event));  // NOLINT(*-move-const-arg)
 }
 
 void App::send_event(MotionEvent event) {
-  events.push_back(std::move(event));
+  events.push_back(std::move(event));  // NOLINT(*-move-const-arg)
   process_events();
 }
 
@@ -48,7 +49,7 @@ void App::process_events() {
   events.clear();
 }
 
-void App::init_canvas(SkCanvas *c) {
+void App::set_canvas(SkCanvas *c) {
   canvas = c;
 }
 

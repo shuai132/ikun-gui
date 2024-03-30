@@ -4,6 +4,7 @@
 #include "IRuntime.h"
 #include "VNode.h"
 #include "app/Application.h"
+#include "hook/hook.h"
 
 namespace ikun_gui {
 
@@ -13,14 +14,14 @@ class App : public IRuntime {
 
  public:
   void resize(int width, int height);
-  void process_layout();
-  void render(VNode* node = nullptr);
+  void layout();
+  void render();
 
   void push_event(MotionEvent event);
   void send_event(MotionEvent event);
   void process_events();
 
-  void init_canvas(SkCanvas* c);
+  void set_canvas(SkCanvas* c);
 
   std::shared_ptr<VNode>& root();
 
