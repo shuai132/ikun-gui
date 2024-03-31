@@ -149,12 +149,14 @@ class VNode : public std::enable_shared_from_this<VNode> {
  public:
   void add_child(std::shared_ptr<VNode> child);
 
-  void add_child(std::function<std::shared_ptr<VNode>()> builder);
+  void add_child(std::function<void(VNode*)> builder, std::shared_ptr<hook::Scope> scope = nullptr);
 
   virtual void init_attrs();
 
  public:
   void layout() const;
+
+  bool process_scopes();
 
   void set_runtime(IRuntime* runtime);
 
@@ -203,8 +205,5 @@ class VNode : public std::enable_shared_from_this<VNode> {
   bool invalidated = true;
   bool is_touching = false;
 };
-
-using div = VNode;
-using rect = VNode;
 
 }  // namespace ikun_gui

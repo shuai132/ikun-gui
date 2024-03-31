@@ -21,13 +21,20 @@ void VNode::add_child(std::shared_ptr<VNode> child) {
   children.push_back(std::move(child));
 }
 
-void VNode::add_child(std::function<std::shared_ptr<VNode>()> builder) {
-  auto scope_ptr = std::make_shared<hook::Scope>(this);
+void VNode::add_child(std::function<void(VNode*)> builder, std::shared_ptr<hook::Scope> scope_ptr) {
+  if (scope_ptr == nullptr) {
+    scope_ptr = std::make_shared<hook::Scope>(this);
+  }
   auto scope = scope_ptr.get();
   this->scopes.push_back(std::move(scope_ptr));
   hook::set_current_scope(scope);
-  auto node = builder();
+  scope->nodes_pos_begin = children.size();
+  builder(this);
   scope->child_builder = std::move(builder);
+  scope->nodes_pos_end = children.size();
+  for (int i = 0; i < scope->nodes_pos_end - scope->nodes_pos_begin; i++) {
+    scope->nodes.push_back(children[i + scope->nodes_pos_begin].get());
+  }
 }
 
 void VNode::init_attrs() {
@@ -94,6 +101,34 @@ void VNode::init_attrs() {
 
 void VNode::layout() const {
   YGNodeCalculateLayout(yoga_node, YGUndefined, YGUndefined, YGDirectionLTR);
+}
+
+bool VNode::process_scopes() {
+  auto has_any_invalid = std::any_of(this->scopes.begin(), this->scopes.end(), [&](const auto& item) {
+    return item->is_invalid;
+  });
+  if (has_any_invalid) {
+    // rebuild the node's child tree
+    auto tmp_child = std::move(this->children);
+    auto tmp_scopes = std::move(this->scopes);
+
+    auto tmp_node_pos = tmp_child.cbegin();
+    size_t tmp_node_index = 0;
+    for (const auto& scope : tmp_scopes) {
+      scope->is_invalid = false;
+      uint32_t common_node_size = scope->nodes_pos_begin - tmp_node_index;
+      if (common_node_size > 0) {
+        this->children.assign(tmp_node_pos, tmp_node_pos + common_node_size);
+        tmp_node_pos += common_node_size;
+      }
+      this->add_child(scope->child_builder, scope);
+    }
+    return true;
+  }
+
+  return std::any_of(children.begin(), children.end(), [&](const auto& item) {
+    return item->process_scopes();
+  });
 }
 
 void VNode::set_runtime(IRuntime* rt) {  // NOLINT(*-no-recursion)

@@ -5,16 +5,19 @@
 namespace ikun_gui {
 namespace hook {
 
-Scope::Scope(VNode* node) : node(node) {}
+Scope::Scope(VNode* parent) : parent(parent) {}
 
-VNode* Scope::scope_root() const {
-  return node;
+VNode* Scope::scope_parent() const {
+  return parent;
 }
 
-void Scope::invalid() const {
-  node->children.clear();
-  this->child_builder();
-  node->runtime->request_render();
+const std::vector<VNode*>& Scope::scope_nodes() const {
+  return nodes;
+}
+
+void Scope::invalid() {
+  is_invalid = true;
+  parent->runtime->request_render();
 }
 
 }  // namespace hook

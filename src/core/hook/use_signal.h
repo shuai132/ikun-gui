@@ -13,10 +13,10 @@ Signal<T> use_signal(HookFn<T> f) {
     return f == hook.handle;
   });
   if (ret != hooks.cend()) {
-    return ret->signal.template as<T>();
+    return ret->template as_signal<T>();
   } else {
     auto signal = Signal<T>(f());
-    hooks.push_back(HookHandle{(void*)f, signal.erase_type()});
+    hooks.push_back(HookHandle{(void*)f, signal});
     return signal;
   }
 }

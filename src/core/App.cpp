@@ -16,12 +16,18 @@ void App::resize(int w, int h) {
   vdom->init_attrs();
 }
 
+void App::process_hooks() {
+  vdom->process_scopes();
+}
+
 void App::layout() {
   vdom->layout();
 }
 
 void App::render() {
+  this->process_hooks();
   this->layout();
+  canvas->clear(SK_AlphaOPAQUE);
   vdom->draw(canvas, 0);
 }
 

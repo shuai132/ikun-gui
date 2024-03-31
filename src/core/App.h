@@ -14,6 +14,7 @@ class App : public IRuntime {
 
  public:
   void resize(int width, int height);
+  void process_hooks();
   void layout();
   void render();
 

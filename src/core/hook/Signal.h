@@ -11,26 +11,23 @@
 namespace ikun_gui {
 namespace hook {
 
-class SignalAny;
-
 template <typename T>
 class Signal {
  public:
   explicit Signal(T t) : v(std::make_shared<T>(t)) {}
-  SignalAny erase_type() const;
 
   const T& get() const {
     return *v.get();
   }
 
   Signal<T>& operator++() {
-    (*v.get())++;
+    (*v)++;
     scope_invalid(scope);
     return *this;
   }
 
   Signal<T>& operator--() {
-    (*v.get())--;
+    (*v)--;
     scope_invalid(scope);
     return *this;
   }
@@ -51,22 +48,6 @@ class Signal {
   std::shared_ptr<T> v;
   Scope* scope = hook::current_scope();
 };
-
-class SignalAny {
- public:
-  template <typename T>
-  Signal<T> as() const {
-    return _place_holder;
-  };
-
- private:
-  Signal<int> _place_holder;
-};
-
-template <typename T>
-SignalAny Signal<T>::erase_type() const {
-  return *(SignalAny*)&v;
-}
 
 namespace detail {
 

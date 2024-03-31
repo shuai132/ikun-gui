@@ -3,18 +3,19 @@
 using namespace ikun_gui_app;
 using namespace ikun_gui;
 
-static std::shared_ptr<VNode> create_app() {
+static void create_app(VNode* parent) {
   auto counter = hook::use_signal<int>([] {
     return 0;
   });
 
-  auto parent = hook::current_scope()->scope_root();
+  fmt::println("create_app: parent: {}, count: {}", (void*)parent, counter.get());
   {
     auto top = VNode::create();
     parent->add_child(top);
     top->attrs.height.percent(50);
     top->attrs.width.percent(100);
     top->attrs.color.rgb(0, 119, 182);
+    top->attrs.color.argb(222, 0, 119, 182);
     top->attrs.justify(YGJustifyCenter);
     top->attrs.align.items(YGAlignCenter);
     top->init_attrs();
@@ -33,7 +34,7 @@ static std::shared_ptr<VNode> create_app() {
     parent->add_child(group);
     group->attrs.position(YGPositionTypeAbsolute);
     group->attrs.width.percent(100);
-    group->attrs.height.px(50);
+    group->attrs.height.percent(50);
     group->attrs.align.items(YGAlignCenter);
     group->attrs.justify(YGJustifySpaceAround);
     group->attrs.flex_direction(YGFlexDirectionRow);
@@ -42,10 +43,10 @@ static std::shared_ptr<VNode> create_app() {
     for (int i = 0; i < counter.get(); i++) {
       auto node = VNode::create();
       group->add_child(node);
-      node->attrs.height.px(50);
-      node->attrs.width.px(50);
-      node->attrs.color.white();
+      node->attrs.height.percent(100);
+      node->attrs.width.percent(100.f / (float)counter.get() - 0.2f);
       node->init_attrs();
+      node->add_child(create_app);
     }
   }
 
@@ -55,6 +56,7 @@ static std::shared_ptr<VNode> create_app() {
     bottom->attrs.height.percent(50);
     bottom->attrs.width.percent(100);
     bottom->attrs.color.white();
+    bottom->attrs.color.argb(222, 222, 222, 222);
     bottom->attrs.justify(YGJustifyCenter);
     bottom->attrs.align.items(YGAlignCenter);
     bottom->attrs.flex_direction(YGFlexDirectionRow);
@@ -64,8 +66,8 @@ static std::shared_ptr<VNode> create_app() {
     {
       auto button = Button::create();
       bottom->add_child(button);
-      button->attrs.width.px(200);
-      button->attrs.height.px(60);
+      button->attrs.width.percent(40);
+      button->attrs.height.percent(40);
       button->init_attrs();
       button->on_click = [counter]() mutable {
         fmt::println("on_click: +");
@@ -95,8 +97,8 @@ static std::shared_ptr<VNode> create_app() {
     {
       auto button = Button::create();
       bottom->add_child(button);
-      button->attrs.width.px(200);
-      button->attrs.height.px(60);
+      button->attrs.width.percent(40);
+      button->attrs.height.percent(40);
       button->init_attrs();
       button->on_click = [counter]() mutable {
         fmt::println("on_click: -");
@@ -114,7 +116,6 @@ static std::shared_ptr<VNode> create_app() {
       }
     }
   }
-  return nullptr;
 }
 
 int main(int argc, char* argv[]) {
