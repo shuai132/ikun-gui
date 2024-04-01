@@ -17,7 +17,7 @@ const std::vector<VNode*>& Scope::scope_nodes() const {
 
 void Scope::invalid() {
   is_invalid = true;
-  parent->runtime->request_render();
+  IRuntime::current_runtime()->request_render();
 }
 
 }  // namespace hook

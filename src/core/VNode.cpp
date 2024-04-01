@@ -17,7 +17,6 @@ void VNode::add_child(std::shared_ptr<VNode> child) {
   YGNodeInsertChild(yoga_node, child->yoga_node, index);
 
   child->parent = this;
-  child->set_runtime(runtime);
   children.push_back(std::move(child));
 }
 
@@ -131,13 +130,6 @@ bool VNode::process_scopes() {
   });
 }
 
-void VNode::set_runtime(IRuntime* rt) {  // NOLINT(*-no-recursion)
-  this->runtime = rt;
-  for (const auto& item : children) {
-    item->set_runtime(rt);
-  }
-}
-
 void VNode::draw(SkCanvas* canvas, int64_t delta_ms) {  // NOLINT(*-no-recursion)
   if (parent != nullptr) {
     float left = YGNodeLayoutGetLeft(yoga_node);
@@ -169,7 +161,7 @@ void VNode::draw_self(SkCanvas* canvas, int64_t delta_ms) {
 }
 
 void VNode::invalidate() const {
-  runtime->request_render();
+  IRuntime::current_runtime()->request_render();
 }
 
 bool VNode::dispatch_touch_event(const MotionEvent& event) {  // NOLINT(*-no-recursion)
@@ -182,6 +174,7 @@ bool VNode::dispatch_touch_event(const MotionEvent& event) {  // NOLINT(*-no-rec
 
 bool VNode::on_touch_event(const MotionEvent& event) {
   if (!enable_touch) return false;
+  auto runtime = IRuntime::current_runtime();
 
   bool touch_is_on_node =
       (layout_left <= event.x && event.x <= layout_left + layout_width) && (layout_top <= event.y && event.y <= layout_top + layout_height);

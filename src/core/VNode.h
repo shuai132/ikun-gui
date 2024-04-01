@@ -142,7 +142,7 @@ struct Attrs {
   std::string shadow;
 };
 
-class VNode : public std::enable_shared_from_this<VNode> {
+class VNode : public std::enable_shared_from_this<VNode>, ikun_gui::detail::noncopyable {
  public:
   static std::shared_ptr<VNode> create();
   VNode() = default;
@@ -159,8 +159,6 @@ class VNode : public std::enable_shared_from_this<VNode> {
   void layout() const;
 
   bool process_scopes();
-
-  void set_runtime(IRuntime* runtime);
 
   virtual void draw(SkCanvas* canvas, int64_t delta_ms);
 
@@ -187,7 +185,6 @@ class VNode : public std::enable_shared_from_this<VNode> {
   std::function<void()> on_click;
 
  public:
-  IRuntime* runtime = nullptr;
   VNode* parent = nullptr;
   std::vector<std::shared_ptr<VNode>> children;
   std::vector<std::shared_ptr<hook::Scope>> scopes;

@@ -24,7 +24,7 @@ void Label::init_attrs() {
 void Label::draw_self(SkCanvas *canvas, int64_t delta_ms) {
   VNode::draw_self(canvas, delta_ms);
 
-  SkFont font(runtime->app()->font_manager.typeface, font_size);
+  SkFont font(IRuntime::current_runtime()->app()->font_manager.typeface, font_size);
   font.setSubpixel(true);
   font.setSize(font_size);
   SkPaint paint;

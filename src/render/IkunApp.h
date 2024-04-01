@@ -13,7 +13,7 @@ class SkTypeface;
 
 namespace ikun_gui {
 
-class IkunApp : public ikun_gui_app::Application, ikun_gui_app::Window::Layer {
+class IkunApp : public ikun_gui_app::Application, ikun_gui_app::Window::Layer, ikun_gui::detail::noncopyable {
  public:
   IkunApp(int argc, char** argv, std::shared_ptr<App> app, void* platformData = nullptr);
   ~IkunApp() override;

@@ -4,7 +4,7 @@ namespace ikun_gui {
 
 std::shared_ptr<App> App::create() {
   auto app = std::make_shared<App>();
-  app->vdom->set_runtime(app.get());
+  IRuntime::set_current_runtime(app.get());
   return app;
 }
 

@@ -12,7 +12,7 @@ namespace ikun_gui {
 namespace hook {
 
 template <typename T>
-class Signal {
+class Signal : ikun_gui::detail::copyable {
  public:
   explicit Signal(T t) : v(std::make_shared<T>(t)) {}
 
