@@ -21,7 +21,7 @@ void VNode::add_child(std::shared_ptr<VNode> child) {
   children.push_back(std::move(child));
 }
 
-void VNode::add_child(std::function<void(VNode*)> builder, std::shared_ptr<hook::Scope> scope_ptr) {
+void VNode::add_child(ComponentBuilder builder, std::shared_ptr<hook::Scope> scope_ptr) {
   if (scope_ptr == nullptr) {
     scope_ptr = std::make_shared<hook::Scope>(this);
   }
@@ -168,11 +168,8 @@ void VNode::draw_self(SkCanvas* canvas, int64_t delta_ms) {
   canvas->drawRect(rect, paint);
 }
 
-void VNode::invalidate() {  // NOLINT(*-no-recursion)
-  if (parent) {
-    parent->invalidate();
-  }
-  invalidated = true;
+void VNode::invalidate() const {
+  runtime->request_render();
 }
 
 bool VNode::dispatch_touch_event(const MotionEvent& event) {  // NOLINT(*-no-recursion)
@@ -218,14 +215,6 @@ bool VNode::on_touch_event(const MotionEvent& event) {
     }
   }
   return false;
-}
-
-VNode* VNode::root() const {
-  return runtime->get_vdom();
-}
-
-bool VNode::is_root() const {
-  return root() == this;
 }
 
 }  // namespace ikun_gui

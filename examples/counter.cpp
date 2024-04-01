@@ -3,7 +3,7 @@
 using namespace ikun_gui_app;
 using namespace ikun_gui;
 
-static void create_app(VNode* parent) {
+static void app_component(VNode* parent) {
   auto counter = hook::use_signal<int>([] {
     return 0;
   });
@@ -46,7 +46,7 @@ static void create_app(VNode* parent) {
       node->attrs.height.percent(100);
       node->attrs.width.percent(100.f / (float)counter.get() - 0.2f);
       node->init_attrs();
-      node->add_child(create_app);
+      node->add_child(app_component);
     }
   }
 
@@ -123,6 +123,6 @@ int main(int argc, char* argv[]) {
   app->width = 400;
   app->height = 350;
   app->title = "counter";
-  app->root()->add_child(create_app);
+  app->add_component(app_component);
   return ikun_gui::run(argc, argv, app);
 }

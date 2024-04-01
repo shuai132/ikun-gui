@@ -24,7 +24,7 @@ class App : public IRuntime {
 
   void set_canvas(SkCanvas* c);
 
-  std::shared_ptr<VNode>& root();
+  void add_component(ComponentBuilder builder);
 
   VNode* get_vdom() override;
 

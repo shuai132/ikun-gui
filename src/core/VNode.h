@@ -10,6 +10,8 @@
 
 namespace ikun_gui {
 
+using ComponentBuilder = std::function<void(VNode*)>;
+
 struct AttrValue {
   void percent(float percent) {
     type = Type::percent;
@@ -149,7 +151,7 @@ class VNode : public std::enable_shared_from_this<VNode> {
  public:
   void add_child(std::shared_ptr<VNode> child);
 
-  void add_child(std::function<void(VNode*)> builder, std::shared_ptr<hook::Scope> scope = nullptr);
+  void add_child(ComponentBuilder builder, std::shared_ptr<hook::Scope> scope = nullptr);
 
   virtual void init_attrs();
 
@@ -164,7 +166,7 @@ class VNode : public std::enable_shared_from_this<VNode> {
 
   virtual void draw_self(SkCanvas* canvas, int64_t delta_ms);
 
-  void invalidate();
+  void invalidate() const;
 
   bool dispatch_touch_event(const MotionEvent& event);
 
@@ -185,10 +187,6 @@ class VNode : public std::enable_shared_from_this<VNode> {
   std::function<void()> on_click;
 
  public:
-  VNode* root() const;
-  bool is_root() const;
-
- public:
   IRuntime* runtime = nullptr;
   VNode* parent = nullptr;
   std::vector<std::shared_ptr<VNode>> children;
@@ -202,7 +200,6 @@ class VNode : public std::enable_shared_from_this<VNode> {
   float layout_height = 0;
 
  private:
-  bool invalidated = true;
   bool is_touching = false;
 };
 

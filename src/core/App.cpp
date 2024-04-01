@@ -59,8 +59,8 @@ void App::set_canvas(SkCanvas *c) {
   canvas = c;
 }
 
-std::shared_ptr<VNode> &App::root() {
-  return vdom;
+void App::add_component(ComponentBuilder builder) {
+  vdom->add_child(std::move(builder));
 }
 
 VNode *App::get_vdom() {
