@@ -3,3 +3,6 @@
 
 // button
 #include "Button.h"
+
+// image
+#include "Image.h"
