@@ -17,7 +17,6 @@ void Label::init_attrs() {
   if (attrs.width.type == AttrValue::Type::unset) {
     attrs.width.percent(100);
   }
-  enable_touch = false;
   VNode::init_attrs();
 }
 

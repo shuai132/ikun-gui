@@ -129,17 +129,28 @@ struct Color {
   uint32_t value = 0;
 };
 
+struct BorderRadius {
+  void operator()(float x, float y) {
+    is_set = true;
+    this->x = x;
+    this->y = y;
+  }
+
+  bool is_set = false;
+  float x;
+  float y;
+};
+
 struct Attrs {
   std::string tag;
   AttrValue width;
   AttrValue height;
-  std::string background;
   Align align;
   Position position;
   Justify justify;
   FlexDirection flex_direction;
   Color color;
-  std::string shadow;
+  BorderRadius border_radius;
 };
 
 class VNode : public std::enable_shared_from_this<VNode>, ikun_gui::detail::noncopyable {
@@ -170,6 +181,8 @@ class VNode : public std::enable_shared_from_this<VNode>, ikun_gui::detail::nonc
 
   bool on_touch_event(const MotionEvent& event);
 
+  bool is_enable_touch() const;
+
  public:
   Attrs attrs;
 
@@ -179,8 +192,6 @@ class VNode : public std::enable_shared_from_this<VNode>, ikun_gui::detail::nonc
   std::function<void(const MotionEvent&)> touchmove;
   std::function<void(const MotionEvent&)> touchend;
   std::function<void(const MotionEvent&)> touchcancel;
-  // control
-  bool enable_touch = true;
   // click event
   std::function<void()> on_click;
 

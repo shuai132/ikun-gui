@@ -153,11 +153,21 @@ void VNode::draw_self(SkCanvas* canvas, int64_t delta_ms) {
   float width = YGNodeLayoutGetWidth(yoga_node);
   float height = YGNodeLayoutGetHeight(yoga_node);
 
-  SkPaint paint;
-  paint.setColor(attrs.color.value);
+  if (!attrs.border_radius.is_set) {
+    SkPaint paint;
+    paint.setColor(attrs.color.value);
 
-  SkRect rect = SkRect::MakeXYWH(layout_left, layout_top, width, height);
-  canvas->drawRect(rect, paint);
+    SkRect rect = SkRect::MakeXYWH(layout_left, layout_top, width, height);
+    canvas->drawRect(rect, paint);
+  } else {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kFill_Style);
+    paint.setColor(attrs.color.value);
+
+    auto rect = SkRect{layout_left, layout_top, layout_left + layout_width, layout_top + layout_height};
+    canvas->drawRoundRect(rect, attrs.border_radius.x, attrs.border_radius.y, paint);
+  }
 }
 
 void VNode::invalidate() const {
@@ -173,7 +183,7 @@ bool VNode::dispatch_touch_event(const MotionEvent& event) {  // NOLINT(*-no-rec
 }
 
 bool VNode::on_touch_event(const MotionEvent& event) {
-  if (!enable_touch) return false;
+  if (!is_enable_touch()) return false;
   auto runtime = IRuntime::current_runtime();
 
   bool touch_is_on_node =
@@ -208,6 +218,10 @@ bool VNode::on_touch_event(const MotionEvent& event) {
     }
   }
   return false;
+}
+
+bool VNode::is_enable_touch() const {
+  return touchstart || touchmove || touchend || touchcancel || on_click;
 }
 
 }  // namespace ikun_gui
