@@ -19,6 +19,11 @@ class Image : public VNode {
   std::string file_path;
   sk_sp<SkImage> sk_image;
   sk_sp<SkSVGDOM> sk_svg_dom;
+
+  enum class ObjectFit {
+    FILL,
+    COVER,
+  } object_fit = ObjectFit::COVER;
 };
 
 }  // namespace ikun_gui

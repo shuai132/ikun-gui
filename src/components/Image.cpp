@@ -42,20 +42,28 @@ void Image::init_attrs() {
 
 void Image::draw_self(SkCanvas *canvas, int64_t delta_ms) {
   if (sk_image) {
+    // todo: object_fit
     auto rect = SkRect{layout_left, layout_top, layout_left + layout_width, layout_top + layout_height};
     canvas->drawImageRect(sk_image, rect, SkSamplingOptions{SkFilterMode::kNearest});
   } else if (sk_svg_dom) {
-    canvas->save();
+    canvas->translate(layout_left, layout_top);
     SkSVGLengthContext length_context{SkSize{layout_width, layout_height}};
     auto size = sk_svg_dom->getRoot()->intrinsicSize(length_context);
-    float sx = float(layout_width) / size.width();
-    float sy = float(layout_height) / size.height();
-    float scale = fmin(sx, sy);
-    canvas->translate(layout_left, layout_top);
-    canvas->scale(scale, scale);
+    float scale_x = float(layout_width) / size.width();
+    float scale_y = float(layout_height) / size.height();
+    switch (object_fit) {
+      case ObjectFit::FILL:
+        break;
+      case ObjectFit::COVER:
+        if (scale_x > scale_y) {
+          scale_x = scale_y;
+        } else {
+          scale_y = scale_x;
+        }
+        break;
+    }
+    canvas->scale(scale_x, scale_y);
     sk_svg_dom->render(canvas);
-    sk_svg_dom->render(canvas);
-    canvas->restore();
   }
 }
 
