@@ -140,12 +140,13 @@ void VNode::draw(SkCanvas* canvas, int64_t delta_ms) {  // NOLINT(*-no-recursion
     layout_height = YGNodeLayoutGetHeight(yoga_node);
   }
 
-  auto count = canvas->getSaveCount();
+  auto count = canvas->save();
+  canvas->translate(layout_left, layout_top);
   draw_self(canvas, delta_ms);
+  canvas->restoreToCount(count);
   for (const auto& item : children) {
     item->draw(canvas, delta_ms);
   }
-  canvas->restoreToCount(count);
 }
 
 void VNode::draw_self(SkCanvas* canvas, int64_t delta_ms) {
@@ -157,7 +158,7 @@ void VNode::draw_self(SkCanvas* canvas, int64_t delta_ms) {
     SkPaint paint;
     paint.setColor(attrs.color.value);
 
-    SkRect rect = SkRect::MakeXYWH(layout_left, layout_top, width, height);
+    SkRect rect = SkRect::MakeXYWH(0, 0, width, height);
     canvas->drawRect(rect, paint);
   } else {
     SkPaint paint;
@@ -165,7 +166,7 @@ void VNode::draw_self(SkCanvas* canvas, int64_t delta_ms) {
     paint.setStyle(SkPaint::kFill_Style);
     paint.setColor(attrs.color.value);
 
-    auto rect = SkRect{layout_left, layout_top, layout_left + layout_width, layout_top + layout_height};
+    auto rect = SkRect{0, 0, layout_width, layout_height};
     canvas->drawRoundRect(rect, attrs.border_radius.x, attrs.border_radius.y, paint);
   }
 }

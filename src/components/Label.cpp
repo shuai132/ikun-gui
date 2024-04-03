@@ -41,8 +41,8 @@ void Label::draw_self(SkCanvas *canvas, int64_t delta_ms) {
   canvas->drawSimpleText(text.data(),
                          text.length(),
                          SkTextEncoding::kUTF8,
-                         layout_left + (layout_width - bounds.width())/ 2,
-                         layout_top + layout_height - (layout_height - bounds.height())/ 2,
+                         (layout_width - bounds.width()) / 2,
+                         layout_height - (layout_height - bounds.height())/ 2,
                          font,
                          paint
                          );

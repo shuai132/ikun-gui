@@ -43,10 +43,9 @@ void Image::init_attrs() {
 void Image::draw_self(SkCanvas *canvas, int64_t delta_ms) {
   if (sk_image) {
     // todo: object_fit
-    auto rect = SkRect{layout_left, layout_top, layout_left + layout_width, layout_top + layout_height};
+    auto rect = SkRect{0, 0, layout_width, layout_height};
     canvas->drawImageRect(sk_image, rect, SkSamplingOptions{SkFilterMode::kNearest});
   } else if (sk_svg_dom) {
-    canvas->translate(layout_left, layout_top);
     SkSVGLengthContext length_context{SkSize{layout_width, layout_height}};
     auto size = sk_svg_dom->getRoot()->intrinsicSize(length_context);
     float scale_x = float(layout_width) / size.width();
