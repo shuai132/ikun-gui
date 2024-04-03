@@ -5,6 +5,8 @@
 #include "include/core/SkStream.h"
 #include "include/encode/SkPngEncoder.h"
 #include "modules/svg/include/SkSVGDOM.h"
+#include "modules/svg/include/SkSVGRenderContext.h"
+#include "modules/svg/include/SkSVGSVG.h"
 
 namespace ikun_gui {
 
@@ -44,7 +46,14 @@ void Image::draw_self(SkCanvas *canvas, int64_t delta_ms) {
     canvas->drawImageRect(sk_image, rect, SkSamplingOptions{SkFilterMode::kNearest});
   } else if (sk_svg_dom) {
     canvas->save();
+    SkSVGLengthContext length_context{SkSize{layout_width, layout_height}};
+    auto size = sk_svg_dom->getRoot()->intrinsicSize(length_context);
+    float sx = float(layout_width) / size.width();
+    float sy = float(layout_height) / size.height();
+    float scale = fmin(sx, sy);
     canvas->translate(layout_left, layout_top);
+    canvas->scale(scale, scale);
+    sk_svg_dom->render(canvas);
     sk_svg_dom->render(canvas);
     canvas->restore();
   }
