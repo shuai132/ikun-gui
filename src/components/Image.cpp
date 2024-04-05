@@ -41,27 +41,80 @@ void Image::init_attrs() {
 }
 
 void Image::draw_self(SkCanvas *canvas, int64_t delta_ms) {
+  VNode::draw_self(canvas, delta_ms);
+
   if (sk_image) {
-    // todo: object_fit
     auto rect = SkRect{0, 0, layout_width, layout_height};
+    auto size = SkSize{(float)sk_image->width(), (float)sk_image->height()};
+
+    switch (object_fit) {
+      case ObjectFit::FILL:
+        break;
+      case ObjectFit::CONTAIN: {
+        float scale_x = layout_width / size.width();
+        float scale_y = layout_height / size.height();
+        float scale = scale_x < scale_y ? scale_x : scale_y;
+        rect = SkRect{0, 0, size.width() * scale, size.height() * scale};
+      } break;
+      case ObjectFit::COVER: {
+        float scale_x = layout_width / size.width();
+        float scale_y = layout_height / size.height();
+        float scale = scale_x > scale_y ? scale_x : scale_y;
+        rect = SkRect{0, 0, size.width() * scale, size.height() * scale};
+      } break;
+      case ObjectFit::NONE: {
+        rect = SkRect{0, 0, size.width(), size.height()};
+      } break;
+    }
+
+    switch (align) {
+      case Align::CENTER:
+        canvas->translate((layout_width - rect.width()) / 2, (layout_height - rect.height()) / 2);
+        break;
+      case Align::NONE:
+        break;
+    }
+
     canvas->drawImageRect(sk_image, rect, SkSamplingOptions{SkFilterMode::kNearest});
   } else if (sk_svg_dom) {
     SkSVGLengthContext length_context{SkSize{layout_width, layout_height}};
     auto size = sk_svg_dom->getRoot()->intrinsicSize(length_context);
-    float scale_x = float(layout_width) / size.width();
-    float scale_y = float(layout_height) / size.height();
+    float scale_x = layout_width / size.width();
+    float scale_y = layout_height / size.height();
+
     switch (object_fit) {
       case ObjectFit::FILL:
         break;
-      case ObjectFit::COVER:
+      case ObjectFit::CONTAIN: {
         if (scale_x > scale_y) {
           scale_x = scale_y;
         } else {
           scale_y = scale_x;
         }
+      } break;
+      case ObjectFit::COVER: {
+        if (scale_x < scale_y) {
+          scale_x = scale_y;
+        } else {
+          scale_y = scale_x;
+        }
+      } break;
+      case ObjectFit::NONE:
+        scale_x = 1;
+        scale_y = 1;
         break;
     }
+
     canvas->scale(scale_x, scale_y);
+
+    switch (align) {
+      case Align::CENTER:
+        canvas->translate((layout_width / scale_x - size.width()) / 2, (layout_height / scale_y - size.height()) / 2);
+        break;
+      case Align::NONE:
+        break;
+    }
+
     sk_svg_dom->render(canvas);
   }
 }

@@ -21,9 +21,16 @@ class Image : public VNode {
   sk_sp<SkSVGDOM> sk_svg_dom;
 
   enum class ObjectFit {
-    FILL,
-    COVER,
-  } object_fit = ObjectFit::COVER;
+    FILL,     // 内容拉伸填充整个容器
+    CONTAIN,  // 保持原有尺寸比例 最长边铺满容器
+    COVER,    // 保持原有尺寸比例 最短边铺满容器
+    NONE,     // 保持原有尺寸宽高 不缩放
+  } object_fit = ObjectFit::CONTAIN;
+
+  enum class Align {
+    CENTER,  // 自动居中
+    NONE,    // left-top
+  } align = Align::CENTER;
 };
 
 }  // namespace ikun_gui
