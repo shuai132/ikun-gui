@@ -8,7 +8,7 @@ static void app_component(VNode* parent) {
     return 0;
   });
 
-  fmt::println("app_component: parent: {}, count: {}", (void*)parent, counter.get());
+  fmt::println("app_component: parent: {}, count: {}", (void*)parent, *counter);
   {
     auto top = VNode::create();
     parent->add_child(top);
@@ -29,7 +29,7 @@ static void app_component(VNode* parent) {
     }
   }
 
-  if (counter.get() > 0) {
+  if (*counter > 0) {
     auto group = VNode::create();
     parent->add_child(group);
     group->attrs.position(YGPositionTypeAbsolute);
@@ -40,11 +40,11 @@ static void app_component(VNode* parent) {
     group->attrs.flex_direction(YGFlexDirectionRow);
     group->init_attrs();
 
-    for (int i = 0; i < counter.get(); i++) {
+    for (int i = 0; i < *counter; i++) {
       auto node = VNode::create();
       group->add_child(node);
       node->attrs.height.percent(100);
-      node->attrs.width.percent(100.f / (float)counter.get() - 0.2f);
+      node->attrs.width.percent(100.f / (float)*counter - 0.2f);
       node->init_attrs();
       node->add_child(app_component);
     }

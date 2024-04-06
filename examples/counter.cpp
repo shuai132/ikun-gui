@@ -7,7 +7,7 @@ static std::shared_ptr<VNode> app_component(VNode* parent) {
   auto counter = hook::use_signal<int>([] {
     return 0;
   });
-  fmt::println("app_component: parent: {}, count: {}", (void*)parent, counter.get());
+  fmt::println("app_component: parent: {}, count: {}", (void*)parent, *counter);
 
   {
     auto top = VNode::create();
@@ -28,7 +28,7 @@ static std::shared_ptr<VNode> app_component(VNode* parent) {
     }
   }
 
-  if (counter.get() > 0) {
+  if (*counter > 0) {
     auto group = VNode::create();
     parent->add_child(group);
     group->attrs.position(YGPositionTypeAbsolute);
@@ -39,7 +39,7 @@ static std::shared_ptr<VNode> app_component(VNode* parent) {
     group->attrs.flex_direction(YGFlexDirectionRow);
     group->init_attrs();
 
-    for (int i = 0; i < counter.get(); i++) {
+    for (int i = 0; i < *counter; i++) {
       auto node = VNode::create();
       group->add_child(node);
       node->attrs.height.px(50);

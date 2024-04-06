@@ -16,8 +16,8 @@ class Signal : ikun_gui::detail::copyable {
  public:
   explicit Signal(T t) : v(std::make_shared<T>(t)) {}
 
-  const T& get() const {
-    return *v.get();
+  const T& operator*() const {
+    return *v;
   }
 
   Signal<T>& operator++() {
@@ -66,7 +66,7 @@ namespace std {
 
 template <typename T, typename std::enable_if<ikun_gui::hook::detail::is_signal<T>::value, int>::type = 0>
 inline std::string to_string(const T& t) {  // NOLINT(*-dcl58-cpp)
-  return std::to_string(t.get());
+  return std::to_string(*t);
 }
 
 }  // namespace std
