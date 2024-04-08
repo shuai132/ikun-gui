@@ -23,12 +23,16 @@ add_compile_options(-Wall)
 add_subdirectory(src)
 
 if (IKUN_GUI_BUILD_EXAMPLES)
-    add_executable(counter examples/counter.cpp)
+    if (CMAKE_BUILD_TYPE MATCHES "Release")
+        set(BUILD_APP_FLAG WIN32 MACOSX_BUNDLE)
+    endif ()
+
+    add_executable(counter ${BUILD_APP_FLAG} examples/counter.cpp)
     target_link_libraries_with_definitions(counter ikun_gui)
 
-    add_executable(counter_component examples/counter_component.cpp)
+    add_executable(counter_component ${BUILD_APP_FLAG} examples/counter_component.cpp)
     target_link_libraries_with_definitions(counter_component ikun_gui)
 
-    add_executable(image examples/image.cpp)
+    add_executable(image ${BUILD_APP_FLAG} examples/image.cpp)
     target_link_libraries_with_definitions(image ikun_gui)
 endif ()

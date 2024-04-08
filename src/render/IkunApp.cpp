@@ -3,7 +3,6 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPoint.h"
-#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkGradientShader.h"
@@ -109,6 +108,7 @@ bool IkunApp::onChar(SkUnichar c, skui::ModifierKey modifiers) {
     }
     fWindow->detach();
     fWindow->attach(fBackendType);
+    app->request_render();
   }
   return true;
 }
