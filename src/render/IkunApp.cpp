@@ -13,15 +13,7 @@ using skwindow::DisplayParams;
 
 namespace ikun_gui {
 
-IkunApp::IkunApp(int argc, char** argv, std::shared_ptr<App> app, void* platformData)
-#if defined(SK_GL)
-    : fBackendType(Window::kNativeGL_BackendType)
-#elif defined(SK_VULKAN)
-    : fBackendType(Window::kVulkan_BackendType)
-#else
-    : fBackendType(Window::kRaster_BackendType)
-#endif
-{
+IkunApp::IkunApp(int argc, char** argv, std::shared_ptr<App> app, void* platformData) {
   SkGraphics::Init();
 
   fWindow = Window::CreateNativeWindow(platformData);
@@ -56,18 +48,25 @@ void IkunApp::updateTitle() {
     return;
   }
 
-  if (Window::kRaster_BackendType == fBackendType) {
-    fmt::println("backend: Raster");
-  } else {
+  switch (fBackendType) {
 #if defined(SK_GL)
-    fmt::println("backend: OpenGL");
-#elif defined(SK_VULKAN)
-    fmt::println("backend: Vulkan");
-#elif defined(SK_DAWN)
-    fmt::println("backend: Dawn");
-#else
-    fmt::println("Unknown GPU backend");
+    case Window::kNativeGL_BackendType:
+      fmt::println("backend: OpenGL");
+      break;
 #endif
+#if defined(SK_VULKAN)
+    case Window::kVulkan_BackendType:
+      fmt::println("backend: Vulkan");
+      break;
+#endif
+#if defined(SK_METAL)
+    case Window::kMetal_BackendType:
+      fmt::println("backend: Metal");
+      break;
+#endif
+    case Window::kRaster_BackendType:
+      fmt::println("backend: Raster");
+      break;
   }
 }
 
@@ -84,7 +83,7 @@ void IkunApp::onPaint(SkSurface* surface) {
 }
 
 void IkunApp::onResize(int width, int height) {
-  printf("onResize: %d, %d\n", width, height);
+  // fmt::println("onResize: {}, {}", width, height);
   app->resize(width, height);
 }
 
@@ -94,17 +93,9 @@ void IkunApp::onEvent(Event event, long value) {
 
 bool IkunApp::onChar(SkUnichar c, skui::ModifierKey modifiers) {
   if (' ' == c) {
-    if (Window::kRaster_BackendType == fBackendType) {
-#if defined(SK_GL)
-      fBackendType = Window::kNativeGL_BackendType;
-#elif defined(SK_VULKAN)
-      fBackendType = Window::kVulkan_BackendType;
-#else
-      SkDebugf("No GPU backend configured\n");
-      return true;
-#endif
-    } else {
-      fBackendType = Window::kRaster_BackendType;
+    fBackendType = (Window::BackendType)(fBackendType + 1);
+    if (fBackendType > Window::kLast_BackendType) {
+      fBackendType = (Window::BackendType)0;
     }
     fWindow->detach();
     fWindow->attach(fBackendType);
