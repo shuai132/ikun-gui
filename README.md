@@ -5,17 +5,27 @@ applications
 
 ## Features 🐔
 
-- [ ] 内置组件
+- [x] 响应式
 - [ ] 热重载
+- [x] 内置组件
 - [ ] 调试工具
-- [ ] 自定义渲染器
 - [ ] UI编辑器
 
 ## Goals 🏀
 
-* 可移植性：支持常见平台、也可移植到嵌入式设备
+* 可移植：支持常见平台、也可移植到嵌入式设备
 * 响应式：支持响应式设计
 * 高性能和低内存占用
+
+## Examples
+
+* [examples/counter.cpp](examples/counter.cpp)
+
+![image](doc/examples/counter.gif)
+
+* [examples/image.cpp](examples/image.cpp)
+
+![image](doc/examples/image.png)
 
 ## Roadmap
 
