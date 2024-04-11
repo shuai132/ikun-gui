@@ -62,7 +62,15 @@ if (NOT SKIA_USE_STATIC_LIBS)
     message(STATUS "Generating skia cmake, done!")
 
     add_subdirectory(${SKIA_PATH}/out/${CMAKE_BUILD_TYPE} skia EXCLUDE_FROM_ALL)
-    target_link_libraries(ikun_gui PUBLIC skia flags tool_utils gpu_tool_utils modules__svg tools__window)
+    target_link_libraries(ikun_gui PUBLIC
+            skia
+            flags
+            tool_utils
+            tools__window
+            gpu_tool_utils
+            modules__svg
+            modules__skparagraph
+    )
 else ()
     message(FATAL_ERROR "not support yet")
 endif ()

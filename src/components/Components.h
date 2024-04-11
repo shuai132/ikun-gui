@@ -6,3 +6,6 @@
 
 // image
 #include "Image.h"
+
+// textview
+#include "TextView.h"

@@ -35,4 +35,7 @@ if (IKUN_GUI_BUILD_EXAMPLES)
 
     add_executable(image ${BUILD_APP_FLAG} examples/image.cpp)
     target_link_libraries_with_definitions(image ikun_gui)
+
+    add_executable(textview ${BUILD_APP_FLAG} examples/textview.cpp)
+    target_link_libraries_with_definitions(textview ikun_gui)
 endif ()
