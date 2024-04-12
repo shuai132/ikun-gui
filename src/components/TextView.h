@@ -27,6 +27,13 @@ class TextView : public VNode {
   skia::textlayout::ParagraphStyle paragraph_style;
   std::unique_ptr<skia::textlayout::ParagraphBuilder> paragraph_builder;
   std::unique_ptr<skia::textlayout::Paragraph> paragraph;
+
+ private:
+  bool refresh_layout = false;
+  float layout_width_old = 0;
+
+  skia::textlayout::PositionWithAffinity tlp_start;
+  skia::textlayout::PositionWithAffinity tlp_end;
 };
 
 }  // namespace ikun_gui

@@ -33,15 +33,42 @@ void TextView::init_attrs() {
     auto data = SkData::MakeFromFileName(text_file.c_str());
     text = std::string((char *)data->data(), data->size());
   }
+
+  touchstart = [this](const MotionEvent &e) {
+    tlp_start = paragraph->getGlyphPositionAtCoordinate(e.x, e.y);
+  };
+
+  touchmove = [this](const MotionEvent &e) {
+    tlp_end = paragraph->getGlyphPositionAtCoordinate(e.x, e.y);
+    invalidate();
+  };
+  touchend = touchmove;
 }
 
 void TextView::draw_self(SkCanvas *canvas, int64_t delta_ms) {
   VNode::draw_self(canvas, delta_ms);
-  canvas->translate(-layout_width, -layout_height);
 
   if (paragraph) {
-    paragraph->layout(layout_width);
-    paragraph->paint(canvas, layout_width, layout_height);
+    if (layout_width != layout_width_old) {
+      layout_width_old = layout_width;
+      refresh_layout = true;
+    }
+
+    if (refresh_layout) {
+      paragraph->layout(layout_width);
+      refresh_layout = false;
+    }
+
+    int32_t position_s = std::min(tlp_start.position, tlp_end.position);
+    int32_t position_e = std::max(tlp_start.position, tlp_end.position);
+    auto boxes = paragraph->getRectsForRange(position_s, position_e, RectHeightStyle::kMax, RectWidthStyle::kTight);
+    SkPaint paint;
+    paint.setColor(0xFF888888);
+    for (const auto &item : boxes) {
+      canvas->drawRect(item.rect, paint);
+    }
+
+    paragraph->paint(canvas, 0, 0);
     return;
   }
 
@@ -53,7 +80,7 @@ void TextView::draw_self(SkCanvas *canvas, int64_t delta_ms) {
 
   paragraph = paragraph_builder->Build();
   paragraph->layout(layout_width);
-  paragraph->paint(canvas, layout_width, layout_height);
+  paragraph->paint(canvas, 0, 0);
 }
 
 }  // namespace ikun_gui
