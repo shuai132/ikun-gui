@@ -137,6 +137,17 @@ bool IkunApp::onTouchOrMouse(intptr_t owner, skui::InputState state, float x, fl
   return true;
 }
 
+bool IkunApp::onMouseWheel(float deltaY, float deltaX, int x, int y, skui::ModifierKey key) {
+  WheelEvent event;
+  event.x = x;
+  event.y = y;
+  event.delta_y = deltaY;
+  event.delta_x = deltaX;
+  event.key = key;
+  app->send_event(event);
+  return false;
+}
+
 }  // namespace ikun_gui
 
 namespace ikun_gui {

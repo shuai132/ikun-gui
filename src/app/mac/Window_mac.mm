@@ -468,7 +468,8 @@ static skui::ModifierKey get_modifiers(const NSEvent* event) {
   // TODO: support hasPreciseScrollingDeltas?
   const NSPoint pos = [event locationInWindow];
   const NSRect rect = [view frame];
-  fWindow->onMouseWheel([event scrollingDeltaY], pos.x * backingScaleFactor, (rect.size.height - pos.y) * backingScaleFactor, modifiers);
+  fWindow->onMouseWheel([event scrollingDeltaY], [event scrollingDeltaX], pos.x * backingScaleFactor, (rect.size.height - pos.y) * backingScaleFactor,
+                        modifiers);
 }
 
 - (void)drawRect:(NSRect)rect {

@@ -179,9 +179,15 @@ class VNode : public std::enable_shared_from_this<VNode>, ikun_gui::detail::nonc
 
   bool dispatch_touch_event(const MotionEvent& event);
 
+  bool dispatch_wheel_event(const WheelEvent& event);
+
   bool on_touch_event(const MotionEvent& event);
 
   bool is_enable_touch() const;
+
+  bool on_wheel_event(const WheelEvent& event);
+
+  bool is_enable_wheel() const;
 
  public:
   Attrs attrs;
@@ -194,6 +200,8 @@ class VNode : public std::enable_shared_from_this<VNode>, ikun_gui::detail::nonc
   std::function<void(const MotionEvent&)> touchcancel;
   // click event
   std::function<void()> on_click;
+
+  std::function<void(const WheelEvent&)> on_wheel;
 
  public:
   VNode* parent = nullptr;

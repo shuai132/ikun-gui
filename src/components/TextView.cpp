@@ -35,19 +35,49 @@ void TextView::init_attrs() {
   }
 
   touchstart = [this](const MotionEvent &e) {
-    tlp_start = paragraph->getGlyphPositionAtCoordinate(e.x, e.y);
+    tlp_start = paragraph->getGlyphPositionAtCoordinate(e.x - scroll_pos_left, e.y - scroll_pos_top);
   };
 
   touchmove = [this](const MotionEvent &e) {
-    tlp_end = paragraph->getGlyphPositionAtCoordinate(e.x, e.y);
+    tlp_end = paragraph->getGlyphPositionAtCoordinate(e.x - scroll_pos_left, e.y - scroll_pos_top);
     invalidate();
   };
   touchend = touchmove;
+
+  on_wheel = [this](const WheelEvent &e) {
+    scroll_pos_top += e.delta_y;
+    if (scroll_pos_top > 0) {
+      scroll_pos_top = 0;
+    }
+    if (scroll_pos_top + paragraph->getHeight() < layout_height) {
+      scroll_pos_top = layout_height - paragraph->getHeight();
+    }
+    if (scroll_pos_top != scroll_pos_top_old) {
+      scroll_pos_top_old = scroll_pos_top;
+      invalidate();
+    }
+
+    if (line_wrap) return;
+    scroll_pos_left += e.delta_x;
+    if (scroll_pos_left > 0) {
+      scroll_pos_left = 0;
+    }
+    if (scroll_pos_left + paragraph->getMaxIntrinsicWidth() < layout_width) {
+      scroll_pos_left = layout_width - paragraph->getMaxIntrinsicWidth();
+    }
+    if (scroll_pos_left != scroll_pos_left_old) {
+      scroll_pos_left_old = scroll_pos_left;
+      invalidate();
+    }
+  };
 }
 
 void TextView::draw_self(SkCanvas *canvas, int64_t delta_ms) {
   VNode::draw_self(canvas, delta_ms);
 
+  canvas->translate(scroll_pos_left, scroll_pos_top);
+
+  float paragraph_layout_width = line_wrap ? layout_width : SK_ScalarMax;
   if (paragraph) {
     if (layout_width != layout_width_old) {
       layout_width_old = layout_width;
@@ -55,7 +85,7 @@ void TextView::draw_self(SkCanvas *canvas, int64_t delta_ms) {
     }
 
     if (refresh_layout) {
-      paragraph->layout(layout_width);
+      paragraph->layout(paragraph_layout_width);
       refresh_layout = false;
     }
 
@@ -79,7 +109,7 @@ void TextView::draw_self(SkCanvas *canvas, int64_t delta_ms) {
   paragraph_builder->addText(text.c_str(), text.length());
 
   paragraph = paragraph_builder->Build();
-  paragraph->layout(layout_width);
+  paragraph->layout(paragraph_layout_width);
   paragraph->paint(canvas, 0, 0);
 }
 

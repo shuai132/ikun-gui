@@ -20,6 +20,8 @@ class App : public IRuntime {
 
   void push_event(MotionEvent event);
   void send_event(MotionEvent event);
+  void push_event(WheelEvent event);
+  void send_event(WheelEvent event);
   void process_events();
 
   void set_canvas(SkCanvas* c);
@@ -49,7 +51,8 @@ class App : public IRuntime {
 
  private:
   std::shared_ptr<VNode> vdom = VNode::create();
-  std::vector<MotionEvent> events;
+  std::vector<MotionEvent> motion_events;
+  std::vector<WheelEvent> wheel_events;
   SkCanvas* canvas = nullptr;
   VNode* waiting_event_node = nullptr;
   long request_render_id = 0;

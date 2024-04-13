@@ -133,7 +133,7 @@ class Window {
     virtual bool onMouse(int x, int y, skui::InputState, skui::ModifierKey) {
       return false;
     }
-    virtual bool onMouseWheel(float delta, int x, int y, skui::ModifierKey) {
+    virtual bool onMouseWheel(float deltaY, float deltaX, int x, int y, skui::ModifierKey) {
       return false;
     }
     virtual bool onTouch(intptr_t owner, skui::InputState, float x, float y) {
@@ -165,7 +165,7 @@ class Window {
   bool onChar(SkUnichar c, skui::ModifierKey modifiers);
   bool onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers);
   bool onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers);
-  bool onMouseWheel(float delta, int x, int y, skui::ModifierKey modifiers);
+  bool onMouseWheel(float deltaY, float deltaX, int x, int y, skui::ModifierKey modifiers);
   bool onTouch(intptr_t owner, skui::InputState state, float x, float y);  // multi-owner = multi-touch
   // Platform-detected gesture events
   bool onFling(skui::InputState state);

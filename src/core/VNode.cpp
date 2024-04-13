@@ -142,6 +142,7 @@ void VNode::draw(SkCanvas* canvas, int64_t delta_ms) {  // NOLINT(*-no-recursion
 
   auto count = canvas->save();
   canvas->translate(layout_left, layout_top);
+  canvas->clipRect(SkRect{layout_width, layout_height});
   draw_self(canvas, delta_ms);
   canvas->restoreToCount(count);
   for (const auto& item : children) {
@@ -183,17 +184,27 @@ bool VNode::dispatch_touch_event(const MotionEvent& event) {  // NOLINT(*-no-rec
   return on_touch_event(event);
 }
 
+bool VNode::dispatch_wheel_event(const WheelEvent& event) {  // NOLINT(*-no-recursion)
+  for (auto it = children.rbegin(); it != children.rend(); ++it) {
+    auto ret = (*it)->dispatch_wheel_event(event);
+    if (ret) return true;
+  }
+  return on_wheel_event(event);
+}
+
 bool VNode::on_touch_event(const MotionEvent& event) {
   if (!is_enable_touch()) return false;
   auto runtime = IRuntime::current_runtime();
 
-  bool touch_is_on_node =
-      (layout_left <= event.x && event.x <= layout_left + layout_width) && (layout_top <= event.y && event.y <= layout_top + layout_height);
+  MotionEvent e = event;
+  e.x = event.x - layout_left;
+  e.y = event.y - layout_top;
+  bool touch_is_on_node = (0 <= e.x && e.x <= layout_width) && (0 <= e.y && e.y <= layout_height);
   if (!is_touching) {
-    if (touch_is_on_node && (event.action == Action::DOWN)) {
+    if (touch_is_on_node && (e.action == Action::DOWN)) {
       is_touching = true;
       runtime->set_waiting_event_node(this);
-      if (touchstart) touchstart(event);
+      if (touchstart) touchstart(e);
       return true;
     } else {
       // should ignore
@@ -203,16 +214,16 @@ bool VNode::on_touch_event(const MotionEvent& event) {
     if (!touch_is_on_node) {
       is_touching = false;
       runtime->set_waiting_event_node(nullptr);
-      if (touchcancel) touchcancel(event);
+      if (touchcancel) touchcancel(e);
       return true;
     } else {
-      if (event.action == Action::MOVE) {
-        if (touchmove) touchmove(event);
+      if (e.action == Action::MOVE) {
+        if (touchmove) touchmove(e);
         return true;
-      } else if (event.action == Action::UP) {
+      } else if (e.action == Action::UP) {
         is_touching = false;
         runtime->set_waiting_event_node(nullptr);
-        if (touchend) touchend(event);
+        if (touchend) touchend(e);
         if (on_click) on_click();
         return true;
       }
@@ -223,6 +234,23 @@ bool VNode::on_touch_event(const MotionEvent& event) {
 
 bool VNode::is_enable_touch() const {
   return touchstart || touchmove || touchend || touchcancel || on_click;
+}
+
+bool VNode::on_wheel_event(const WheelEvent& event) {
+  if (!is_enable_wheel()) return false;
+
+  bool touch_is_on_node =
+      (layout_left <= event.x && event.x <= layout_left + layout_width) && (layout_top <= event.y && event.y <= layout_top + layout_height);
+  if (!touch_is_on_node) return false;
+  if (on_wheel) {
+    on_wheel(event);
+    return true;
+  }
+  return false;
+}
+
+bool VNode::is_enable_wheel() const {
+  return on_wheel.operator bool();
 }
 
 }  // namespace ikun_gui

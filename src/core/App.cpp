@@ -32,16 +32,24 @@ void App::render() {
 }
 
 void App::push_event(MotionEvent event) {
-  events.push_back(std::move(event));  // NOLINT(*-move-const-arg)
+  motion_events.push_back(std::move(event));  // NOLINT(*-move-const-arg)
 }
 
 void App::send_event(MotionEvent event) {
-  events.push_back(std::move(event));  // NOLINT(*-move-const-arg)
+  motion_events.push_back(std::move(event));  // NOLINT(*-move-const-arg)
+  process_events();
+}
+void App::push_event(WheelEvent event) {
+  wheel_events.push_back(std::move(event));  // NOLINT(*-move-const-arg)
+}
+
+void App::send_event(WheelEvent event) {
+  wheel_events.push_back(std::move(event));  // NOLINT(*-move-const-arg)
   process_events();
 }
 
 void App::process_events() {
-  for (const auto &e : events) {
+  for (const auto &e : motion_events) {
     if (e.action != DOWN && waiting_event_node == nullptr) {
       // ignore event
       break;
@@ -52,7 +60,12 @@ void App::process_events() {
       vdom->dispatch_touch_event(e);
     }
   }
-  events.clear();
+  motion_events.clear();
+
+  for (const auto &e : wheel_events) {
+    vdom->dispatch_wheel_event(e);
+  }
+  wheel_events.clear();
 }
 
 void App::set_canvas(SkCanvas *c) {

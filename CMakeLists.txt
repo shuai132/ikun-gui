@@ -38,4 +38,7 @@ if (IKUN_GUI_BUILD_EXAMPLES)
 
     add_executable(textview ${BUILD_APP_FLAG} examples/textview.cpp)
     target_link_libraries_with_definitions(textview ikun_gui)
+
+    add_executable(code_editor ${BUILD_APP_FLAG} examples/code_editor.cpp)
+    target_link_libraries_with_definitions(code_editor ikun_gui)
 endif ()

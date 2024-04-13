@@ -21,6 +21,7 @@ class TextView : public VNode {
   std::string text;
   std::string text_file;
   skia::textlayout::TextStyle text_style;
+  bool line_wrap = true;
 
  private:
   sk_sp<skia::textlayout::FontCollection> font_collection;
@@ -31,6 +32,11 @@ class TextView : public VNode {
  private:
   bool refresh_layout = false;
   float layout_width_old = 0;
+
+  float scroll_pos_top = 0;
+  float scroll_pos_top_old = 0;
+  float scroll_pos_left = 0;
+  float scroll_pos_left_old = 0;
 
   skia::textlayout::PositionWithAffinity tlp_start;
   skia::textlayout::PositionWithAffinity tlp_end;

@@ -19,8 +19,12 @@ const char* format_as(const Action& action) {
   }
 }
 
-std::string format_as(const MotionEvent& f) {
-  return fmt::format("{}: x: {}, y: {}", f.action, f.x, f.y);
+std::string format_as(const MotionEvent& e) {
+  return fmt::format("{}: x: {}, y: {}", e.action, e.x, e.y);
+}
+
+std::string format_as(const WheelEvent& e) {
+  return fmt::format("{}: x: {}, y: {}, delta_y: {}, delta_x: {}, key: {}", e.action, e.x, e.y, e.delta_y, e.delta_x, fmt::underlying(e.key));
 }
 
 }  // namespace ikun_gui
