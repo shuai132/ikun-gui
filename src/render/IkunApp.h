@@ -27,15 +27,6 @@ class IkunApp : public ikun_gui_app::Application, ikun_gui_app::Window::Layer, i
   bool onTouch(intptr_t owner, skui::InputState, float x, float y) override;
   bool onMouse(int x, int y, skui::InputState, skui::ModifierKey) override;
   bool onMouseWheel(float deltaY, float deltaX, int x, int y, skui::ModifierKey) override;
-  // Platform-detected gesture events
-  virtual bool onFling(skui::InputState state) {
-    fmt::println("onFling:{} ", (int)state);
-    return false;
-  }
-  virtual bool onPinch(skui::InputState state, float scale, float x, float y) {
-    fmt::println("onPinch:{} {} {} {}", (int)state, scale, x, y);
-    return false;
-  }
 
  private:
   void updateTitle();

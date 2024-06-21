@@ -145,9 +145,13 @@ void VNode::draw(SkCanvas* canvas, int64_t delta_ms) {  // NOLINT(*-no-recursion
   canvas->clipRect(SkRect{layout_width, layout_height});
   draw_self(canvas, delta_ms);
   canvas->restoreToCount(count);
-  for (const auto& item : children) {
+  for (auto& item : children) {
+    canvas->restoreToCount(count);
+    canvas->setMatrix(matrix_to_child);
+//    item->matrix_on_node = matrix_to_child;
     item->draw(canvas, delta_ms);
   }
+  canvas->restoreToCount(count);
 }
 
 void VNode::draw_self(SkCanvas* canvas, int64_t delta_ms) {
@@ -181,15 +185,23 @@ bool VNode::dispatch_touch_event(const MotionEvent& event) {  // NOLINT(*-no-rec
     auto ret = (*it)->dispatch_touch_event(event);
     if (ret) return true;
   }
-  return on_touch_event(event);
+  MotionEvent e = event;
+  e.x -= matrix_on_node.getTranslateX();
+  e.y -= matrix_on_node.getTranslateY();
+  fmt::println("node: {} x {}", matrix_on_node.getTranslateX(), e.x);
+  fmt::println("node: {} y {}", matrix_on_node.getTranslateY(), e.y);
+  return on_touch_event(e);
 }
 
 bool VNode::dispatch_wheel_event(const WheelEvent& event) {  // NOLINT(*-no-recursion)
+  WheelEvent e = event;
+  e.x -= matrix_on_node.getTranslateX();
+  e.y -= matrix_on_node.getTranslateY();
   for (auto it = children.rbegin(); it != children.rend(); ++it) {
-    auto ret = (*it)->dispatch_wheel_event(event);
+    auto ret = (*it)->dispatch_wheel_event(e);
     if (ret) return true;
   }
-  return on_wheel_event(event);
+  return on_wheel_event(e);
 }
 
 bool VNode::on_touch_event(const MotionEvent& event) {
@@ -200,6 +212,7 @@ bool VNode::on_touch_event(const MotionEvent& event) {
   e.x = event.x - layout_left;
   e.y = event.y - layout_top;
   bool touch_is_on_node = (0 <= e.x && e.x <= layout_width) && (0 <= e.y && e.y <= layout_height);
+  fmt::println("touch_is_on_node: {}", touch_is_on_node);
   if (!is_touching) {
     if (touch_is_on_node && (e.action == Action::DOWN)) {
       is_touching = true;

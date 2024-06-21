@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ScrollView.h"
 #include "core/VNode.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
@@ -7,7 +8,7 @@
 
 namespace ikun_gui {
 
-class TextView : public VNode {
+class TextView : public ScrollView {
  public:
   static std::shared_ptr<TextView> create();
   TextView();
@@ -16,6 +17,10 @@ class TextView : public VNode {
   void init_attrs() override;
 
   void draw_self(SkCanvas* canvas, int64_t delta_ms) override;
+
+ public:
+  float content_height() override;
+  float content_width() override;
 
  public:
   std::string text;
@@ -32,11 +37,6 @@ class TextView : public VNode {
  private:
   bool refresh_layout = false;
   float layout_width_old = 0;
-
-  float scroll_pos_top = 0;
-  float scroll_pos_top_old = 0;
-  float scroll_pos_left = 0;
-  float scroll_pos_left_old = 0;
 
   skia::textlayout::PositionWithAffinity tlp_start;
   skia::textlayout::PositionWithAffinity tlp_end;

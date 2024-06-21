@@ -27,7 +27,7 @@ std::shared_ptr<TextView> TextView::create() {
 }
 
 void TextView::init_attrs() {
-  VNode::init_attrs();
+  ScrollView::init_attrs();
 
   if (!text_file.empty()) {
     auto data = SkData::MakeFromFileName(text_file.c_str());
@@ -43,39 +43,10 @@ void TextView::init_attrs() {
     invalidate();
   };
   touchend = touchmove;
-
-  on_wheel = [this](const WheelEvent &e) {
-    scroll_pos_top += e.delta_y;
-    if (scroll_pos_top > 0) {
-      scroll_pos_top = 0;
-    }
-    if (scroll_pos_top + paragraph->getHeight() < layout_height) {
-      scroll_pos_top = layout_height - paragraph->getHeight();
-    }
-    if (scroll_pos_top != scroll_pos_top_old) {
-      scroll_pos_top_old = scroll_pos_top;
-      invalidate();
-    }
-
-    if (line_wrap) return;
-    scroll_pos_left += e.delta_x;
-    if (scroll_pos_left > 0) {
-      scroll_pos_left = 0;
-    }
-    if (scroll_pos_left + paragraph->getMaxIntrinsicWidth() < layout_width) {
-      scroll_pos_left = layout_width - paragraph->getMaxIntrinsicWidth();
-    }
-    if (scroll_pos_left != scroll_pos_left_old) {
-      scroll_pos_left_old = scroll_pos_left;
-      invalidate();
-    }
-  };
 }
 
 void TextView::draw_self(SkCanvas *canvas, int64_t delta_ms) {
-  VNode::draw_self(canvas, delta_ms);
-
-  canvas->translate(scroll_pos_left, scroll_pos_top);
+  ScrollView::draw_self(canvas, delta_ms);
 
   float paragraph_layout_width = line_wrap ? layout_width : SK_ScalarMax;
   if (paragraph) {
@@ -111,6 +82,15 @@ void TextView::draw_self(SkCanvas *canvas, int64_t delta_ms) {
   paragraph = paragraph_builder->Build();
   paragraph->layout(paragraph_layout_width);
   paragraph->paint(canvas, 0, 0);
+}
+
+float TextView::content_height() {
+  return paragraph ? paragraph->getHeight() : layout_height;
+}
+
+float TextView::content_width() {
+  if (line_wrap) return layout_width;
+  return paragraph ? paragraph->getMaxIntrinsicWidth() : layout_width;
 }
 
 }  // namespace ikun_gui

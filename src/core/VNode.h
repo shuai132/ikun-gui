@@ -215,6 +215,9 @@ class VNode : public std::enable_shared_from_this<VNode>, ikun_gui::detail::nonc
   float layout_width = 0;
   float layout_height = 0;
 
+  SkMatrix matrix_on_node = SkMatrix();
+  SkMatrix matrix_to_child = SkMatrix();
+
  private:
   bool is_touching = false;
 };

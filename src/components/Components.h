@@ -9,3 +9,6 @@
 
 // textview
 #include "TextView.h"
+
+// scroll view
+#include "ScrollView.h"
